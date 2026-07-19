@@ -6,6 +6,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddScoped<AlicaSystem.Datos.ConexionBD>();
 builder.Services.AddScoped<AlicaSystem.Datos.UsuarioDatos>();
 builder.Services.AddScoped<AlicaSystem.Datos.CategoriaDatos>();
+builder.Services.AddScoped<AlicaSystem.Datos.ListaDatos>();
 
 // Esto prende el sistema de Session, y le decimos cómo comportarse:
 // que la sesión expire tras 30 minutos sin actividad

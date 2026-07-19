@@ -23,7 +23,7 @@ namespace AlicaSystem.Datos
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("@Email", email);
             cmd.Parameters.AddWithValue("@NuevaPassword", nuevaPassword);
-            int filasAfectadas = cmd.ExecuteNonQuery();
+            int filasAfectadas = Convert.ToInt32(cmd.ExecuteScalar());
             return filasAfectadas > 0;
         }
 
