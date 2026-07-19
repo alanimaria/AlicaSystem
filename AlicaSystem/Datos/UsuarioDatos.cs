@@ -14,6 +14,16 @@ namespace AlicaSystem.Datos
         {
             this.conexionBD = conexionBD;
         }
+        public void ResetearPasswordUsuario(string email, string nuevaPassword)
+        {
+            using SqlConnection cn = conexionBD.ObtenerConexion();
+            cn.Open();
+            using SqlCommand cmd = new SqlCommand("sp_ResetearPasswordUsuario", cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@Email", email);
+            cmd.Parameters.AddWithValue("@NuevaPassword", nuevaPassword);
+            cmd.ExecuteNonQuery();
+        }
 
         public Usuario? ValidarUsuario(string email, string clave)
         {
@@ -41,6 +51,7 @@ namespace AlicaSystem.Datos
                 usuario.FechaRegistro = Convert.ToDateTime(dr["fecha_registro"]);
                 usuario.Estado = Convert.ToBoolean(dr["estado"]);
             }
+
 
             return usuario;
         }
