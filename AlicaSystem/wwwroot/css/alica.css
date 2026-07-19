@@ -421,3 +421,35 @@ tbody tr:hover{background:var(--paper-dim);}
   .topbar{padding:14px 16px;}
   .canvas-wrap{padding:14px;}
 }
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 28px;
+    background: #fff;
+    border: 1px solid var(--line-strong);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,.12);
+    z-index: 10;
+    min-width: 160px;
+}
+
+    .dropdown-menu.show {
+        display: block;
+    }
+
+    .dropdown-menu button, .dropdown-menu .dd-item {
+        display: block;
+        width: 100%;
+        text-align: left;
+        padding: 8px 12px;
+        background: none;
+        border: none;
+        font-size: 13px;
+        cursor: pointer;
+        color: var(--ink);
+    }
+
+        .dropdown-menu button:hover, .dropdown-menu .dd-item:hover {
+            background: var(--navy-tint);
+        }

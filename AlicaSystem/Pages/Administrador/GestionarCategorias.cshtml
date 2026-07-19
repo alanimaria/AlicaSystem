@@ -40,7 +40,7 @@
                                     <td class="hide-mobile">@c.Descripcion</td>
                                     <td>
                                         <a class="btn btn-ghost btn-sm" href="/Administrador/GestionarCategorias?id=@c.IdCategoria">Editar</a>
-                                        <form method="post" asp-page-handler="Eliminar" style="display:inline;">
+                                        <form method="post" asp-page-handler="Eliminar" class="confirm-delete" style="display:inline;">
                                             <input type="hidden" name="id" value="@c.IdCategoria" />
                                             <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
                                         </form>

@@ -39,27 +39,26 @@
             <div class="grid-3">
                 @foreach (var l in Model.Listas)
                 {
-                    <div class="card pad-m">
+                    <div class="card pad-m" style="position:relative;">
                         <div class="section-head">
                             <h3 style="font-size:15px;">@l.NombreLista</h3>
-                            <span class="badge">@l.CantidadLibros libro(s)</span>
+                            <button type="button" class="dropdown-toggle btn btn-ghost btn-sm"><i class="bi bi-three-dots-vertical"></i></button>
+                            <div class="dropdown-menu">
+                                <a class="dd-item" href="/Lector/MisListas?busqueda=@Model.Busqueda&ver=@l.NombreLista">
+                                    <i class="bi bi-eye"></i> @(Model.Ver == l.NombreLista ? "Ocultar libros" : "Ver / quitar libros")
+                                </a>
+                                <form method="post" asp-page-handler="Renombrar">
+                                    <input type="hidden" name="nombreActual" value="@l.NombreLista" />
+                                    <input class="field" style="margin:6px 0;" type="text" name="nombreNuevo" placeholder="Nuevo nombre">
+                                    <button class="dd-item" type="submit"><i class="bi bi-pencil"></i> Renombrar</button>
+                                </form>
+                                <form method="post" asp-page-handler="Eliminar" class="confirm-delete">
+                                    <input type="hidden" name="nombreLista" value="@l.NombreLista" />
+                                    <button class="dd-item" type="submit" style="color:var(--stamp-red);"><i class="bi bi-trash"></i> Eliminar</button>
+                                </form>
+                            </div>
                         </div>
-                        <p style="font-size:12px; color:var(--ink-soft);">Actualizada: @l.UltimaActualizacion.ToShortDateString()</p>
-
-                        <a class="btn btn-ghost btn-sm" href="/Lector/MisListas?busqueda=@Model.Busqueda&ver=@l.NombreLista">
-                            @(Model.Ver == l.NombreLista ? "Ocultar libros" : "Ver libros")
-                        </a>
-
-                        <form method="post" asp-page-handler="Renombrar" style="display:inline;">
-                            <input type="hidden" name="nombreActual" value="@l.NombreLista" />
-                            <input class="field" style="display:inline-block; width:auto;" type="text" name="nombreNuevo" placeholder="Nuevo nombre">
-                            <button class="btn btn-ghost btn-sm" type="submit">Renombrar</button>
-                        </form>
-
-                        <form method="post" asp-page-handler="Eliminar" style="display:inline;">
-                            <input type="hidden" name="nombreLista" value="@l.NombreLista" />
-                            <button class="btn btn-danger btn-sm" type="submit">Eliminar</button>
-                        </form>
+                        <p style="font-size:12px; color:var(--ink-soft);">@l.CantidadLibros libro(s) · Actualizada: @l.UltimaActualizacion.ToShortDateString()</p>
 
                         @if (Model.Ver == l.NombreLista)
                         {
@@ -70,6 +69,7 @@
                                 }
                             </ul>
                         }
+         
                     </div>
                 }
             </div>
