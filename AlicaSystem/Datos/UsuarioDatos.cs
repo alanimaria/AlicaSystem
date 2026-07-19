@@ -14,7 +14,8 @@ namespace AlicaSystem.Datos
         {
             this.conexionBD = conexionBD;
         }
-        public void ResetearPasswordUsuario(string email, string nuevaPassword)
+
+        public bool ResetearPasswordUsuario(string email, string nuevaPassword)
         {
             using SqlConnection cn = conexionBD.ObtenerConexion();
             cn.Open();
@@ -22,7 +23,8 @@ namespace AlicaSystem.Datos
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("@Email", email);
             cmd.Parameters.AddWithValue("@NuevaPassword", nuevaPassword);
-            cmd.ExecuteNonQuery();
+            int filasAfectadas = cmd.ExecuteNonQuery();
+            return filasAfectadas > 0;
         }
 
         public Usuario? ValidarUsuario(string email, string clave)
