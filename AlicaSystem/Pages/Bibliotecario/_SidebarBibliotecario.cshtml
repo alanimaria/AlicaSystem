@@ -1,7 +1,27 @@
-﻿namespace AlicaSystem.Pages.Bibliotecario
-{
-    public class _SidebarBibliotecario
-    {
-    }
+﻿@*
+   Menu lateral del bibliotecario. Funciona igual que _SidebarLector.cshtml:
+   es una pieza reutilizable que se inserta en cada pantalla del bibliotecario,
+   para no repetir el mismo menu copiado en cada archivo
+*@
+@{
+    string activo = ViewData["Activo"] as string ?? "";
 }
+<aside class="sidebar">
+    <div class="brand">
+        <img src="~/images/logo.png" alt="Alica System" style="width:40px;height:40px;object-fit:contain;">
+        <div class="brand-text">
+            <div class="name">Alica System</div>
+            <div class="sub">Sistema Bibliotecario</div>
+        </div>
+    </div>
 
+    <nav class="nav-group">
+        <div class="nav-group-label">Bibliotecario</div>
+        <a class="nav-item @(activo == "Dashboard" ? "active" : "")" href="/Bibliotecario/Dashboard"><span class="dot"></span>Menú principal</a>
+        <a class="nav-item @(activo == "RegistrarPrestamo" ? "active" : "")" href="/Bibliotecario/RegistrarPrestamo"><span class="dot"></span>Registrar préstamo</a>
+        <a class="nav-item @(activo == "ReservasPendientes" ? "active" : "")" href="/Bibliotecario/ReservasPendientes"><span class="dot"></span>Reservas pendientes</a>
+        <a class="nav-item @(activo == "Multas" ? "active" : "")" href="/Bibliotecario/Multas"><span class="dot"></span>Multas</a>
+    </nav>
+
+    <div class="sidebar-foot">Alica System · Universidad · Desarrollo Web II</div>
+</aside>

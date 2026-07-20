@@ -7,14 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="Pages\Bibliotecario\_SidebarBibliotecario.cshtml" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Include="Pages\Bibliotecario\_SidebarBibliotecario.cshtml" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.2" />
   </ItemGroup>
 
