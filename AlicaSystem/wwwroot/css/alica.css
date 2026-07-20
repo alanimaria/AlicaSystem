@@ -450,6 +450,10 @@ tbody tr:hover{background:var(--paper-dim);}
         color: var(--ink);
     }
 
-        .dropdown-menu button:hover, .dropdown-menu .dd-item:hover {
+    .dropdown-menu button:hover, .dropdown-menu .dd-item:hover {
             background: var(--navy-tint);
-        }
+ }
+
+.dd-item {
+    text-decoration: none;
+}

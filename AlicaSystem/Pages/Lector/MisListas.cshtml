@@ -59,8 +59,8 @@
                                         <button class="btn btn-primary btn-sm" type="submit"><i class="bi bi-check-lg"></i></button>
                                     </div>
                                 </form>
-                                <a class="dd-item" href="/Lector/MisListas?busqueda=@Model.Busqueda&ver=@l.NombreLista">
-                                    <i class="bi bi-journal-bookmark"></i> @(Model.Ver == l.NombreLista ? "Ocultar libros" : "Ver libros")
+                                <a class="dd-item" href="/Lector/MisListas?busqueda=@Model.Busqueda@(Model.Ver == l.NombreLista ? "" : "&ver=" + l.NombreLista)">
+                                    <i class="bi bi-journal-bookmark"></i> @(Model.Ver == l.NombreLista ? "Ocultar" : "Ver libros")
                                 </a>
                                 <form method="post" asp-page-handler="Eliminar" class="confirm-delete">
                                     <input type="hidden" name="nombreLista" value="@l.NombreLista" />
