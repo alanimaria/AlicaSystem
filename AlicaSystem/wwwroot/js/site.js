@@ -36,6 +36,25 @@ document.querySelectorAll('.dropdown-toggle').forEach(function (boton) {
         menu.classList.toggle('show');
     });
 });
-document.addEventListener('click', function () {
-    document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('show'));
+document.addEventListener('click', function (e) {
+    if (!e.target.closest('.dropdown-menu') && !e.target.closest('.dropdown-toggle')) {
+        document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('show'));
+    }
+});
+// Boton onpost para renombrar: abre un prompt para ingresar el nuevo nombre y luego envía el form correspondiente
+// em el formulario de mi lista
+document.querySelectorAll('.rename-toggle').forEach(function (boton) {
+    boton.addEventListener('click', function (e) {
+        e.stopPropagation();
+        const form = document.getElementById(boton.getAttribute('data-target'));
+        form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    });
+});
+
+// contador para limite de texto en el nombre de la lista
+document.querySelectorAll('[data-maxlen]').forEach(function (input) {
+    const contador = document.getElementById(input.getAttribute('data-maxlen'));
+    input.addEventListener('input', function () {
+        contador.textContent = input.value.length + '/25';
+    });
 });

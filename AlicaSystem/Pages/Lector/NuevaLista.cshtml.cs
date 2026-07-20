@@ -25,11 +25,20 @@ namespace AlicaSystem.Pages.Lector
             return Page();
         }
 
+
         public IActionResult OnPost()
         {
             if (IdUsuarioSesion == null) return RedirectToPage("/Login");
 
+            if (string.IsNullOrWhiteSpace(NombreLista) || NombreLista.Length > 25)
+            {
+                Mensaje = "El nombre debe tener entre 1 y 25 caracteres.";
+                ListasActuales = listaDatos.ContarListasActivas(IdUsuarioSesion.Value);
+                return Page();
+            }
+
             bool ok = listaDatos.CrearLista(IdUsuarioSesion.Value, NombreLista, out string? error);
+ 
             if (!ok)
             {
                 Mensaje = error;

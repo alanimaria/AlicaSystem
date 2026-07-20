@@ -32,7 +32,13 @@ namespace AlicaSystem.Pages.Lector
 
             return Page();
         }
-
+        public IActionResult OnPostQuitarLibro(int idLibro, string nombreLista)
+        {
+            if (IdUsuarioSesion == null) return RedirectToPage("/Login");
+            listaDatos.QuitarLibroDeLista(IdUsuarioSesion.Value, idLibro, nombreLista);
+            TempData["Mensaje"] = "Libro quitado de la lista.";
+            return RedirectToPage(new { ver = nombreLista });
+        }
         public IActionResult OnPostRenombrar(string nombreActual, string nombreNuevo)
         {
             if (IdUsuarioSesion == null) return RedirectToPage("/Login");

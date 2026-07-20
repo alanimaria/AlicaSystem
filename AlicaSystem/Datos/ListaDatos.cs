@@ -52,6 +52,17 @@ namespace AlicaSystem.Datos
                 return false;
             }
         }
+        public void QuitarLibroDeLista(int idUsuario, int idLibro, string nombreLista)
+        {
+            using SqlConnection cn = conexionBD.ObtenerConexion();
+            cn.Open();
+            using SqlCommand cmd = new SqlCommand("sp_QuitarLibroDeLista", cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@IdUsuario", idUsuario);
+            cmd.Parameters.AddWithValue("@IdLibro", idLibro);
+            cmd.Parameters.AddWithValue("@NombreLista", nombreLista);
+            cmd.ExecuteNonQuery();
+        }
 
         public int ContarListasActivas(int idUsuario)
         {
