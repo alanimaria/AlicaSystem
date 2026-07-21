@@ -1,0 +1,76 @@
+﻿@page
+@model AlicaSystem.Pages.Lector.MisReservasModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Alica System - Mis reservas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="~/css/alica.css">
+</head>
+<body>
+    <div class="app">
+        <partial name="_SidebarLector" view-data="ViewData" />
+        <main class="stage" style="padding:32px;">
+
+            <div class="screen-title">
+                <span class="eyebrow">Lector · Historial</span>
+                <h1>Mis reservas</h1>
+                <p>Consulta tus reservas activas y su fecha límite de recogida. Recuerda que expiran a las 48 horas.</p>
+            </div>
+
+            <div class="tab-strip">
+                <a class="btn-tab @(Model.Tab != "historial" ? "active" : "")" href="/Lector/MisReservas?tab=activas">Activas (@Model.CantidadActivas)</a>
+                <a class="btn-tab @(Model.Tab == "historial" ? "active" : "")" href="/Lector/MisReservas?tab=historial">Historial</a>
+            </div>
+
+            @if (TempData["Mensaje"] != null)
+            {
+                <p>@TempData["Mensaje"]</p>
+            }
+
+            <div class="card pad-m">
+                <table>
+                    <thead><tr><th>Libro</th><th class="hide-mobile">Reservado</th><th>Expira</th><th>Estado</th><th class="hide-mobile">Acción</th></tr></thead>
+                    <tbody>
+                        @foreach (var r in Model.Reservas)
+                        {
+                            <tr style="@(r.Estado == "Expirada" || r.Estado == "Cancelada" ? "opacity:.6;" : "")">
+                                <td><div><div class="who">@r.Titulo</div><div class="sub">@r.CodigoInterno</div></div></td>
+                                <td class="hide-mobile">@r.FechaReserva.ToString("dd MMM, HH:mm")</td>
+                                <td>@r.FechaExpiracion.ToString("dd MMM")</td>
+                                <td>
+                                    @{
+                                        string claseEstado = r.Estado == "Pendiente" ? "warn" : (r.Estado == "Completada" ? "ok" : "danger");
+                                    }
+                                    <span class="stamp @claseEstado">@r.Estado</span>
+                                </td>
+                                <td class="hide-mobile">
+                                    @if (r.Estado == "Pendiente")
+                                    {
+                                        <form method="post" asp-page-handler="Cancelar" class="confirm-delete" style="display:inline;">
+                                            <input type="hidden" name="idReserva" value="@r.IdReserva" />
+                                            <button class="btn btn-danger btn-sm" type="submit">Cancelar reserva</button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <span>-</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+        </main>
+    </div>
+    <script src="~/js/site.js"></script>
+</body>
+</html>

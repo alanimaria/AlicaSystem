@@ -5,6 +5,6 @@ namespace AlicaSystem.Models
     {
         public string NombreLista { get; set; } = string.Empty;
         public int CantidadLibros { get; set; }
-        public DateTime UltimaActualizacion { get; set; }
+        public DateTime? UltimaActualizacion { get; set; }
     }
 }
