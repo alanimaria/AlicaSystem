@@ -1,0 +1,192 @@
+﻿@page
+@model AlicaSystem.Pages.Bibliotecario.RegistrarPrestamoModel
+@{
+    Layout = null;
+    ViewData["Activo"] = "RegistrarPrestamo";
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alica System - Registrar prestamo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="~/css/alica.css">
+</head>
+<body>
+    <div class="app">
+        <partial name="_SidebarBibliotecario" />
+
+        <main class="stage" style="padding:32px 40px;">
+            <div class="screen-title">
+                <span class="eyebrow">Bibliotecario · Formulario</span>
+                <h1>Registrar préstamo</h1>
+                <p>Busca al usuario y al libro para generar un nuevo préstamo.</p>
+            </div>
+
+            @Html.AntiForgeryToken()
+
+            <div class="grid-2" style="grid-template-columns:1.4fr .9fr;">
+                <div class="card pad-l">
+                    <div class="field-group">
+                        <label class="field-label">Usuario (matrícula) <span class="req">*</span></label>
+                        <div style="display:flex; gap:8px;">
+                            <input class="field" id="matriculaLector" placeholder="Ej: 2024-0128">
+                            <button type="button" class="btn btn-ghost" onclick="buscarLector()"><i class="bi bi-search"></i></button>
+                        </div>
+                        <div class="field-help" id="resultadoLector">Todavía no se ha buscado ningún usuario</div>
+                    </div>
+
+                    <div class="field-group">
+                        <label class="field-label">Libro (código interno) <span class="req">*</span></label>
+                        <div style="display:flex; gap:8px;">
+                            <input class="field" id="codigoLibro" placeholder="Ej: COD-0231">
+                            <button type="button" class="btn btn-ghost" onclick="buscarLibro()"><i class="bi bi-search"></i></button>
+                        </div>
+                        <div class="field-help" id="resultadoLibro">Todavía no se ha buscado ningún libro</div>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="field-group">
+                            <label class="field-label">Fecha de préstamo</label>
+                            <input class="field" id="fechaPrestamo" disabled>
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">Devolución esperada</label>
+                            <input class="field" id="fechaDevolucion" disabled>
+                        </div>
+                    </div>
+
+                    <div class="field-group">
+                        <label class="field-label">Bibliotecario responsable</label>
+                        <div class="userline" style="padding:8px 0;">
+                            <div class="avatar">@(Model.NombreUsuario.Length > 0 ? Model.NombreUsuario.Substring(0, 1) : "")</div>
+                            <div><div class="who">@Model.NombreUsuario</div><div class="sub">Sesión activa</div></div>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; gap:12px; margin-top:6px;">
+                        <button type="button" class="btn btn-primary" id="btnConfirmar" onclick="confirmarPrestamo()" disabled>
+                            <i class="bi bi-journal-plus"></i> Registrar préstamo
+                        </button>
+                        <a class="btn btn-ghost" href="/Bibliotecario/Dashboard">Cancelar</a>
+                    </div>
+                    <p id="resultadoFinal" style="margin-top:12px;"></p>
+                </div>
+
+                <div class="card pad-l" style="background:var(--paper);">
+                    <h3 style="font-size:14.5px; margin-bottom:12px;">Reglas del préstamo</h3>
+                    <ul style="margin:0; padding-left:18px; font-size:12.5px; color:var(--ink-soft); line-height:2;">
+                        <li>Máximo 3 préstamos activos por usuario.</li>
+                        <li>Período estándar: 7 días.</li>
+                        <li>No se presta un libro con 0 disponibles.</li>
+                        <li>Usuarios con multas pendientes no pueden pedir préstamos.</li>
+                    </ul>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+            const DIAS_PLAZO = 7;
+
+            let idLibroEncontrado = null;
+            let idUsuarioEncontrado = null;
+            let usuarioPuedeTomarPrestamo = false;
+
+            // Muestra fecha de hoy y fecha de devolucion esperada (hoy + DIAS_PLAZO)
+            // apenas carga la pagina. Son solo informativas: el plazo real
+            // lo calcula el stored procedure al registrar.
+            function mostrarFechas() {
+                const hoy = new Date();
+                const devolucion = new Date();
+                devolucion.setDate(hoy.getDate() + DIAS_PLAZO);
+
+                const formatear = (f) => f.toLocaleDateString('es-DO', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+                document.getElementById('fechaPrestamo').value = formatear(hoy);
+                document.getElementById('fechaDevolucion').value = formatear(devolucion);
+            }
+            mostrarFechas();
+
+            async function buscarLibro() {
+                const codigo = document.getElementById('codigoLibro').value;
+                const resp = await fetch('?handler=BuscarLibro&codigo=' + encodeURIComponent(codigo));
+                const data = await resp.json();
+                const texto = document.getElementById('resultadoLibro');
+
+                if (data.encontrado) {
+                    idLibroEncontrado = data.idLibro;
+                    if (data.cantidadDisponible > 0) {
+                        texto.style.color = '';
+                        texto.innerText = data.titulo + ' · ' + data.cantidadDisponible + ' ejemplar(es) disponibles en inventario';
+                    } else {
+                        idLibroEncontrado = null;
+                        texto.style.color = '#b3261e';
+                        texto.innerText = data.titulo + ' · sin ejemplares disponibles';
+                    }
+                } else {
+                    idLibroEncontrado = null;
+                    texto.style.color = '#b3261e';
+                    texto.innerText = 'Libro no encontrado.';
+                }
+                revisarSiPuedeConfirmar();
+            }
+
+            async function buscarLector() {
+                const matricula = document.getElementById('matriculaLector').value;
+                const resp = await fetch('?handler=BuscarLector&matricula=' + encodeURIComponent(matricula));
+                const data = await resp.json();
+                const texto = document.getElementById('resultadoLector');
+
+                if (data.encontrado) {
+                    idUsuarioEncontrado = data.idUsuario;
+
+                    if (data.tieneMultaPendiente) {
+                        usuarioPuedeTomarPrestamo = false;
+                        texto.style.color = '#b3261e';
+                        texto.innerText = data.nombreCompleto + ' · tiene multas pendientes, no puede pedir préstamos.';
+                    } else if (data.prestamosActivos >= 3) {
+                        usuarioPuedeTomarPrestamo = false;
+                        texto.style.color = '#b3261e';
+                        texto.innerText = data.nombreCompleto + ' · ya tiene 3 préstamos activos (máximo permitido).';
+                    } else {
+                        usuarioPuedeTomarPrestamo = true;
+                        texto.style.color = '';
+                        texto.innerText = data.nombreCompleto + ' · 3 préstamos activos permitidos, actualmente tiene ' + data.prestamosActivos;
+                    }
+                } else {
+                    idUsuarioEncontrado = null;
+                    usuarioPuedeTomarPrestamo = false;
+                    texto.style.color = '#b3261e';
+                    texto.innerText = 'Usuario no encontrado.';
+                }
+                revisarSiPuedeConfirmar();
+            }
+
+            function revisarSiPuedeConfirmar() {
+                document.getElementById('btnConfirmar').disabled = !(idLibroEncontrado && idUsuarioEncontrado && usuarioPuedeTomarPrestamo);
+            }
+
+            async function confirmarPrestamo() {
+                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+                const body = new URLSearchParams();
+                body.append('idUsuario', idUsuarioEncontrado);
+                body.append('idLibro', idLibroEncontrado);
+                body.append('__RequestVerificationToken', token);
+
+                const resp = await fetch('?handler=Registrar', { method: 'POST', body: body });
+                const data = await resp.json();
+
+                const resultado = document.getElementById('resultadoFinal');
+                resultado.style.color = data.exito ? '' : '#b3261e';
+                resultado.innerText = data.exito
+                    ? 'Préstamo registrado con éxito (ID ' + data.idPrestamo + ').'
+                    : data.mensaje;
+            }
+    </script>
+</body>
+</html>

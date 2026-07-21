@@ -16,7 +16,8 @@ namespace AlicaSystem.Datos
 
     // Esta clase se encarga de todo lo relacionado a PRESTAMOS que necesita
     // el dashboard del bibliotecario (contar cuantos hay activos, y traer
-    // la lista de actividad reciente)
+    // la lista de actividad reciente), y tambien de registrar prestamos
+    // y devoluciones nuevas
     public class PrestamoDatos
     {
         // Guardamos la conexion a la base de datos para poder usarla
@@ -76,6 +77,81 @@ namespace AlicaSystem.Datos
             }
 
             return lista;
+        }
+
+        // Busca un libro por su codigo interno (el que el bibliotecario
+        // escribe o escanea al momento de prestar).
+        // Devuelve null si no se encuentra ningun libro con ese codigo.
+        public (int IdLibro, string Titulo, string CodigoInterno, int CantidadDisponible)? BuscarLibroPorCodigo(string codigoInterno)
+        {
+            using SqlConnection cn = conexionBD.ObtenerConexion();
+            cn.Open();
+
+            using SqlCommand cmd = new SqlCommand("sp_BuscarLibroPorCodigo", cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@CodigoInterno", codigoInterno);
+
+            using SqlDataReader dr = cmd.ExecuteReader();
+
+            if (dr.Read())
+            {
+                return (
+                    Convert.ToInt32(dr["id_libro"]),
+                    dr["titulo"].ToString()!,
+                    dr["codigo_interno"].ToString()!,
+                    Convert.ToInt32(dr["cantidad_disponible"])
+                );
+            }
+
+            return null;
+        }
+
+        // Registra un prestamo nuevo.
+        // El stored procedure ahora valida ADEMAS de las copias disponibles:
+        // que el usuario no tenga multas pendientes, y que no tenga ya
+        // 3 prestamos activos. Por eso ahora devolvemos tambien el
+        // "Mensaje" que arma el SP explicando el motivo exacto (sea
+        // exito o el motivo del rechazo), para no tener que adivinarlo
+        // aqui en C#.
+        // IdPrestamo viene en 0 si el prestamo no se pudo registrar
+        // por cualquiera de esas razones.
+        public (int IdPrestamo, string Mensaje) RegistrarPrestamo(int idUsuario, int idLibro, int idEmpleado, int diasPlazo = 7)
+        {
+            using SqlConnection cn = conexionBD.ObtenerConexion();
+            cn.Open();
+
+            using SqlCommand cmd = new SqlCommand("sp_RegistrarPrestamo", cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@IdUsuario", idUsuario);
+            cmd.Parameters.AddWithValue("@IdLibro", idLibro);
+            cmd.Parameters.AddWithValue("@IdEmpleado", idEmpleado);
+            cmd.Parameters.AddWithValue("@DiasPlazo", diasPlazo);
+
+            using SqlDataReader dr = cmd.ExecuteReader();
+
+            if (dr.Read())
+            {
+                int idPrestamo = Convert.ToInt32(dr["IdPrestamo"]);
+                string mensaje = dr["Mensaje"].ToString()!;
+                return (idPrestamo, mensaje);
+            }
+
+            return (0, "No se pudo registrar el prestamo.");
+        }
+
+        // Registra la devolucion de un prestamo activo.
+        // Devuelve true si se registro bien, false si el prestamo no existe
+        // o ya estaba devuelto.
+        public bool RegistrarDevolucion(int idPrestamo)
+        {
+            using SqlConnection cn = conexionBD.ObtenerConexion();
+            cn.Open();
+
+            using SqlCommand cmd = new SqlCommand("sp_RegistrarDevolucion", cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@IdPrestamo", idPrestamo);
+
+            return Convert.ToInt32(cmd.ExecuteScalar()) == 1;
         }
     }
 }
