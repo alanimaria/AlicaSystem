@@ -7,7 +7,34 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Database\CAMBIOS_BD\cambios_bd_alica_system.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Database\SP_ACCESO\sp_RecuperarPassword.sql">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>sp_RecuperarPassword.cs</LastGenOutput>
+    </None>
+    <None Update="Database\SP_ADMINISTRADOR\sp_GestionarCategorias.sql">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>sp_GestionarCategorias.cs</LastGenOutput>
+    </None>
+    <None Update="Database\SP_LECTOR\sp_MisListas.sql">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>sp_MisListas.cs</LastGenOutput>
+    </None>
+    <None Update="Database\SP_LECTOR\sp_NuevaLista.sql">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>sp_NuevaLista.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
 
 </Project>
