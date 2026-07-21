@@ -1,10 +1,10 @@
-﻿using System.Data;
+﻿using AlicaSystem.Models;
 using Microsoft.Data.SqlClient;
+using System.Data;
 
 namespace AlicaSystem.Datos
 {
-    // Esta clase se encarga de todo lo relacionado a RESERVAS que necesita
-    // el dashboard del bibliotecario
+    // Esta clase se encarga de todo lo relacionado a RESERVAS
     public class ReservaDatos
     {
         private readonly ConexionBD conexionBD;
@@ -25,6 +25,52 @@ namespace AlicaSystem.Datos
             cmd.CommandType = CommandType.StoredProcedure;
 
             return Convert.ToInt32(cmd.ExecuteScalar());
+        }
+
+        // Trae la lista completa de reservas pendientes, con los
+        // datos de usuario y libro ya resueltos, para mostrar en
+        // la pantalla "Reservas pendientes" del bibliotecario
+        public List<Reserva> ListarReservasPendientes()
+        {
+            var lista = new List<Reserva>();
+
+            using SqlConnection cn = conexionBD.ObtenerConexion();
+            cn.Open();
+
+            using SqlCommand cmd = new SqlCommand("sp_ListarReservasPendientes", cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+
+            using SqlDataReader dr = cmd.ExecuteReader();
+            while (dr.Read())
+            {
+                lista.Add(new Reserva
+                {
+                    IdReserva = Convert.ToInt32(dr["id_reserva"]),
+                    Usuario = dr["Usuario"].ToString()!,
+                    Libro = dr["Libro"].ToString()!,
+                    FechaReserva = Convert.ToDateTime(dr["fecha_reserva"]),
+                    FechaExpiracion = Convert.ToDateTime(dr["fecha_expiracion"])
+                });
+            }
+
+            return lista;
+        }
+
+        // Cambia el estado de una reserva (a "Cumplida" o "Cancelada").
+        // Devuelve true si se logro actualizar, false si no
+        // (por ejemplo, si la reserva ya no estaba pendiente)
+        public bool ActualizarEstadoReserva(int idReserva, string nuevoEstado)
+        {
+            using SqlConnection cn = conexionBD.ObtenerConexion();
+            cn.Open();
+
+            using SqlCommand cmd = new SqlCommand("sp_ActualizarEstadoReserva", cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@IdReserva", idReserva);
+            cmd.Parameters.AddWithValue("@NuevoEstado", nuevoEstado);
+
+            int filasAfectadas = Convert.ToInt32(cmd.ExecuteScalar());
+            return filasAfectadas > 0;
         }
     }
 }
