@@ -37,4 +37,27 @@
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="Database\SP_ACCESO\sp_RecuperarPassword.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>sp_RecuperarPassword.sql</DependentUpon>
+    </Compile>
+    <Compile Update="Database\SP_ADMINISTRADOR\sp_GestionarCategorias.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>sp_GestionarCategorias.sql</DependentUpon>
+    </Compile>
+    <Compile Update="Database\SP_LECTOR\sp_MisListas.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>sp_MisListas.sql</DependentUpon>
+    </Compile>
+    <Compile Update="Database\SP_LECTOR\sp_NuevaLista.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>sp_NuevaLista.sql</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
 </Project>
