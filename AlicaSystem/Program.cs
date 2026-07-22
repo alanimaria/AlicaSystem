@@ -9,6 +9,7 @@ builder.Services.AddScoped<AlicaSystem.Datos.ConexionBD>();
 builder.Services.AddScoped<AlicaSystem.Datos.UsuarioDatos>();
 builder.Services.AddScoped<AlicaSystem.Datos.CategoriaDatos>();
 builder.Services.AddScoped<AlicaSystem.Datos.ListaDatos>();
+builder.Services.AddScoped<LibroDatos>();
 
 // Validación de login para empleados (Bibliotecario/Administrador) Es el equivalente de UsuarioDatos pero para
 // el personal del sistema, no para los lectores.

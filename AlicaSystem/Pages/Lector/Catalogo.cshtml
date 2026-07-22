@@ -1,0 +1,81 @@
+﻿@page
+@model AlicaSystem.Pages.Lector.CatalogoModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Alica System - Catálogo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="~/css/alica.css">
+</head>
+<body>
+    <div class="app">
+        <partial name="_SidebarLector" view-data="ViewData" />
+        <main class="stage" style="padding:32px;">
+
+            <div class="screen-title">
+                <span class="eyebrow">Lector · Consulta</span>
+                <h1>Catálogo de libros</h1>
+                <p>Busca por título, autor, categoría, palabra clave, ISBN o código interno. Resultados en tiempo real.</p>
+            </div>
+
+            <form method="get" class="card pad-m" style="margin-bottom:20px;">
+                <div class="search-bar" style="margin-bottom:14px;">
+                    <input class="field" type="text" name="busqueda" value="@Model.Busqueda" placeholder="Buscar por título, autor, ISBN o código interno...">
+                    <button class="btn btn-brass" type="submit">Buscar</button>
+                </div>
+                <div class="pill-select">
+                    <button type="submit" name="idCategoria" value="" class="@(Model.IdCategoria == null ? "active" : "")">Todas las categorías</button>
+                    @foreach (var c in Model.Categorias)
+                    {
+                        <button type="submit" name="idCategoria" value="@c.IdCategoria" class="@(Model.IdCategoria == c.IdCategoria ? "active" : "")">@c.Nombre</button>
+                    }
+                    <button type="submit" name="soloDisponibles" value="true" class="@(Model.SoloDisponibles ? "active" : "")">Solo disponibles</button>
+                </div>
+            </form>
+
+            @if (!Model.Libros.Any())
+            {
+                <div class="empty-state">
+                    <h4>Sin resultados</h4>
+                    <p>No se encontraron libros con esos filtros.</p>
+                </div>
+            }
+            else
+            {
+                <div class="grid-4">
+                    @{
+                        string[] covers = { "cover-1", "cover-2", "cover-3", "cover-4", "cover-5", "cover-6" };
+                    }
+                    @for (int i = 0; i < Model.Libros.Count; i++)
+                    {
+                        var l = Model.Libros[i];
+                        <div class="book-card">
+                            <div class="book-cover @covers[i % covers.Length]">
+                                <span class="cat-tag">@l.Categoria</span>
+                                @l.Titulo
+                            </div>
+                            <div class="book-body">
+                                <div class="book-title">@l.Titulo</div>
+                                <div class="book-author">@(l.Autores ?? "Autor no registrado")</div>
+                                <div class="book-meta">
+                                    <span class="stamp @(l.CantidadDisponible > 0 ? "ok" : "danger")">@(l.CantidadDisponible > 0 ? "Disponible" : "Prestado")</span>
+                                    <span class="book-code">@l.CodigoInterno · @l.CantidadDisponible ejemplar(es)</span>
+                                </div>
+                                <a class="btn btn-ghost btn-block btn-sm" href="/Lector/FichaLibro?id=@l.IdLibro">Ver ficha</a>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+
+        </main>
+    </div>
+    <script src="~/js/site.js"></script>
+</body>
+</html>

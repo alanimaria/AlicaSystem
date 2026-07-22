@@ -46,7 +46,25 @@ namespace AlicaSystem.Datos
             }
             return lista;
         }
+        //Lector de datos para registrar una reserva y obtener el mensaje de resultado
+        public (int IdReserva, string Mensaje) RegistrarReserva(int idUsuario, int idLibro)
+        {
+            using SqlConnection cn = conexionBD.ObtenerConexion();
+            cn.Open();
+            using SqlCommand cmd = new SqlCommand("sp_RegistrarReserva", cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@IdUsuario", idUsuario);
+            cmd.Parameters.AddWithValue("@IdLibro", idLibro);
 
+            using SqlDataReader dr = cmd.ExecuteReader();
+            if (dr.Read())
+            {
+                int idReserva = Convert.ToInt32(dr["IdReserva"]);
+                string mensaje = dr["Mensaje"].ToString()!;
+                return (idReserva, mensaje);
+            }
+            return (0, "No se pudo registrar la reserva.");
+        }
         public void CancelarReservaUsuario(int idReserva, int idUsuario)
         {
             using SqlConnection cn = conexionBD.ObtenerConexion();

@@ -69,9 +69,7 @@
                             </div>
                         </div>
 
-
-                        <p style="font-size:12px; color:var(--ink-soft);">@l.CantidadLibros libro(s) · Actualizada: @l.UltimaActualizacion.ToShortDateString()</p>
-
+                        <p style="font-size:12px; color:var(--ink-soft);">@l.CantidadLibros libro(s) · Actualizada: @(l.UltimaActualizacion.HasValue ? l.UltimaActualizacion.Value.ToShortDateString() : "Sin libros aún")</p>
                         @if (Model.Ver == l.NombreLista)
                         {
                             <ul>

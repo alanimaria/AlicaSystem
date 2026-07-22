@@ -46,7 +46,7 @@
                                 <td>@r.FechaExpiracion.ToString("dd MMM")</td>
                                 <td>
                                     @{
-                                        string claseEstado = r.Estado == "Pendiente" ? "warn" : (r.Estado == "Completada" ? "ok" : "danger");
+                                        string claseEstado = r.Estado == "Pendiente" ? "warn" : (r.Estado == "Cumplida" ? "ok" : "danger");
                                     }
                                     <span class="stamp @claseEstado">@r.Estado</span>
                                 </td>
