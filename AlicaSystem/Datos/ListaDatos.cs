@@ -65,6 +65,22 @@ namespace AlicaSystem.Datos
             cmd.Parameters.AddWithValue("@NombreLista", nombreLista);
             cmd.ExecuteNonQuery();
         }
+        public List<string> ObtenerNombresListas(int idUsuario)
+        {
+            var resultado = new List<string>();
+            using SqlConnection cn = conexionBD.ObtenerConexion();
+            cn.Open();
+            using SqlCommand cmd = new SqlCommand("sp_ListarNombresListas", cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@IdUsuario", idUsuario);
+
+            using SqlDataReader dr = cmd.ExecuteReader();
+            while (dr.Read())
+            {
+                resultado.Add(dr["nombre_lista"].ToString()!);
+            }
+            return resultado;
+        }
 
         public int ContarListasActivas(int idUsuario)
         {
@@ -98,7 +114,25 @@ namespace AlicaSystem.Datos
             }
             return resultado;
         }
+        public (bool Exito, string Mensaje) AgregarLibroALista(int idUsuario, int idLibro, string nombreLista)
+        {
+            using SqlConnection cn = conexionBD.ObtenerConexion();
+            cn.Open();
+            using SqlCommand cmd = new SqlCommand("sp_AgregarLibroALista", cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@IdUsuario", idUsuario);
+            cmd.Parameters.AddWithValue("@IdLibro", idLibro);
+            cmd.Parameters.AddWithValue("@NombreLista", nombreLista);
 
+            using SqlDataReader dr = cmd.ExecuteReader();
+            if (dr.Read())
+            {
+                bool exito = Convert.ToInt32(dr["Exito"]) == 1;
+                string mensaje = dr["Mensaje"].ToString()!;
+                return (exito, mensaje);
+            }
+            return (false, "No se pudo agregar el libro a la lista.");
+        }
         public void RenombrarLista(int idUsuario, string nombreActual, string nombreNuevo)
         {
             using SqlConnection cn = conexionBD.ObtenerConexion();

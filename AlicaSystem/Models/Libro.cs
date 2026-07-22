@@ -11,5 +11,7 @@
         public int CantidadDisponible { get; set; }
         public int CantidadTotal { get; set; }
         public string? Autores { get; set; }
+
+        public string? Ubicacion { get; set; }
     }
 }
