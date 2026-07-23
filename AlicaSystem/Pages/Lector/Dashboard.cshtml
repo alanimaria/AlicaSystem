@@ -28,38 +28,66 @@
         <p>Este es tu panel: consulta tus préstamos activos, tus reservas y sigue explorando el catálogo.</p>
     </div>
 
-    <div class="kpis" style="margin-bottom:24px;">
-        <div class="stat-card"><div class="label">Préstamos activos</div><div class="value">2 <span style="font-size:14px;color:var(--ink-soft);">/ 3</span></div><div class="foot">1 vence en 3 días</div></div>
-        <div class="stat-card"><div class="label">Reservas pendientes</div><div class="value">1</div><div class="foot">Expira en 21 h</div></div>
-        <div class="stat-card"><div class="label">Multas pendientes</div><div class="value">RD$ 0</div><div class="foot">Cuenta al día</div></div>
-        <div class="stat-card"><div class="label">Listas creadas</div><div class="value">3</div><div class="foot">24 libros guardados</div></div>
-    </div>
-
-    <div class="grid-2">
-        <div class="card pad-m">
-            <div class="section-head"><h2 style="font-size:16px;">Préstamos activos</h2><a style="font-size:12px; color:var(--navy); font-weight:600; cursor:pointer;">Ver todos →</a></div>
-            <table>
-                <thead><tr><th>Libro</th><th>Vence</th><th>Estado</th></tr></thead>
-                <tbody>
-                    <tr><td>Cien años de soledad</td><td>18 jul 2026</td><td><span class="stamp ok">Activo</span></td></tr>
-                    <tr><td>Estructuras de Datos</td><td>15 jul 2026</td><td><span class="stamp warn">Por vencer</span></td></tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="card pad-m">
-            <div class="section-head"><h2 style="font-size:16px;">Sigue explorando</h2><a style="font-size:12px; color:var(--navy); font-weight:600; cursor:pointer;">Ir al catálogo →</a></div>
-            <div class="grid-2" style="gap:12px;">
-                <div class="book-card">
-                    <div class="book-cover cover-3"><span class="cat-tag">Ciencia</span>Breve historia<br>del tiempo</div>
-                    <div class="book-body"><div class="book-author">S. Hawking</div><span class="stamp ok" style="align-self:flex-start;">Disponible</span></div>
-                </div>
-                <div class="book-card">
-                    <div class="book-cover cover-2"><span class="cat-tag">Novela</span>El nombre<br>del viento</div>
-                    <div class="book-body"><div class="book-author">P. Rothfuss</div><span class="stamp danger" style="align-self:flex-start;">Prestado</span></div>
-                </div>
+            <div class="kpis" style="margin-bottom:24px;">
+                <div class="stat-card"><div class="label">Préstamos activos</div><div class="value">@Model.PrestamosActivos <span style="font-size:14px;color:var(--ink-soft);">/ 3</span></div></div>
+                <div class="stat-card"><div class="label">Reservas pendientes</div><div class="value">@Model.ReservasPendientes</div></div>
+                <div class="stat-card"><div class="label">Multas pendientes</div><div class="value">@Model.MultasPendientes</div></div>
+                <div class="stat-card"><div class="label">Listas creadas</div><div class="value">@Model.ListasCreadas</div></div>
             </div>
-        </div>
-    </div>
+
+            <div class="grid-2">
+                <div class="card pad-m">
+                    <div class="section-head">
+                        <h2 style="font-size:16px;">Préstamos activos</h2>
+                        <a href="/Lector/MisPrestamos" class="link-plain" style="font-size:12px; color:var(--navy); font-weight:600; cursor:pointer;">Ver todos</a>
+                    </div>
+                    <table>
+                        <thead><tr><th>Libro</th><th>Vence</th><th>Estado</th></tr></thead>
+                        <tbody>
+                            @if (!Model.PrestamosRecientes.Any())
+                            {
+                                <tr><td colspan="3" style="color:var(--ink-soft);">Sin préstamos activos.</td></tr>
+                            }
+                            else
+                            {
+                                @foreach (var p in Model.PrestamosRecientes)
+                                {
+                                    <tr>
+                                        <td>@p.Titulo</td>
+                                        <td>@p.FechaDevEsperada.ToString("dd MMM yyyy")</td>
+                                        <td><span class="stamp @(p.Estado == "Vencido" ? "danger" : "ok")">@p.Estado</span></td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card pad-m">
+                    <div class="section-head">
+                        <h2 style="font-size:16px;">Sigue explorando</h2>
+                        <a href="/Lector/Catalogo" class="link-plain" style="font-size:12px; color:var(--navy); font-weight:600; cursor:pointer;">Ir al catálogo </a>
+                    </div>
+                    <div class="grid-2" style="gap:12px;">
+                        @if (!Model.LibrosSugeridos.Any())
+                        {
+                            <p style="color:var(--ink-soft); font-size:13px;">Aún no hay libros disponibles en el catálogo.</p>
+                        }
+                        else
+                        {
+                            string[] covers = { "cover-1", "cover-2", "cover-3", "cover-4", "cover-5", "cover-6" };
+                            for (int i = 0; i < Model.LibrosSugeridos.Count; i++)
+                            {
+                                var l = Model.LibrosSugeridos[i];
+                                <div class="book-card">
+                                    <div class="book-cover @covers[i % covers.Length]"><span class="cat-tag">@l.Categoria</span>@l.Titulo</div>
+                                    <div class="book-body"><div class="book-author">@(l.Autores ?? "Autor no registrado")</div><span class="stamp ok" style="align-self:flex-start;">Disponible</span></div>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+                </div>
 
     </main>
 </div>

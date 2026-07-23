@@ -52,6 +52,19 @@ namespace AlicaSystem.Datos
             }
             return lista;
         }
+        // Cuenta cuántos préstamos activos tiene un usuario específico
+        // (un préstamo esta "activo" si todavia no se ha devuelto el libro,
+        // es decir, fecha_dev_real IS NULL). Se usa para el KPI
+        // "Préstamos activos X/3" del Dashboard Lector.
+        public int ContarPrestamosActivosPorUsuario(int idUsuario)
+        {
+            using SqlConnection cn = conexionBD.ObtenerConexion();
+            cn.Open();
+            using SqlCommand cmd = new SqlCommand("sp_ContarPrestamosActivosPorUsuario", cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@IdUsuario", idUsuario);
+            return Convert.ToInt32(cmd.ExecuteScalar());
+        }
 
         // ---- Métodos agregados para Lector (Mis préstamos) ----
 

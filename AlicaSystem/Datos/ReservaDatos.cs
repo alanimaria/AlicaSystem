@@ -46,6 +46,22 @@ namespace AlicaSystem.Datos
             }
             return lista;
         }
+        // Cuenta cuántas reservas en estado "Pendiente" tiene un usuario
+        // específico (esperando ser recogidas). Se usa para el KPI
+        // "Reservas pendientes" del Dashboard Lector.
+        //
+        // NOTA: no confundir con ContarReservasPendientes() (sin usuario),
+        // que ya existe en esta misma clase para el dashboard GLOBAL del
+        // Bibliotecario -- este metodo es distinto, filtra por un usuario.
+        public int ContarReservasPendientesPorUsuario(int idUsuario)
+        {
+            using SqlConnection cn = conexionBD.ObtenerConexion();
+            cn.Open();
+            using SqlCommand cmd = new SqlCommand("sp_ContarReservasPendientesPorUsuario", cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@IdUsuario", idUsuario);
+            return Convert.ToInt32(cmd.ExecuteScalar());
+        }
         //Lector de datos para registrar una reserva y obtener el mensaje de resultado
         public (int IdReserva, string Mensaje) RegistrarReserva(int idUsuario, int idLibro)
         {

@@ -485,3 +485,10 @@ tbody tr:hover{background:var(--paper-dim);}
             border-color: var(--clay);
             font-weight: 600;
         }
+.link-plain {
+    text-decoration: none;
+}
+
+    .link-plain:hover {
+        text-decoration: underline;
+    }
