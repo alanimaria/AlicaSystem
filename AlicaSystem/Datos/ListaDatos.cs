@@ -27,7 +27,9 @@ namespace AlicaSystem.Datos
                 {
                     NombreLista = dr["nombre_lista"].ToString()!,
                     CantidadLibros = Convert.ToInt32(dr["cantidad_libros"]),
-                    UltimaActualizacion = Convert.ToDateTime(dr["ultima_actualizacion"])
+                    UltimaActualizacion = dr["ultima_actualizacion"] == DBNull.Value
+         ? (DateTime?)null
+         : Convert.ToDateTime(dr["ultima_actualizacion"])
                 });
             }
             return resultado;
