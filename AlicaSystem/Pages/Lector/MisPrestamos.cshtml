@@ -1,0 +1,84 @@
+﻿@page
+@model AlicaSystem.Pages.Lector.MisPrestamosModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Alica System - Mis préstamos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="~/css/alica.css">
+</head>
+<body>
+    <div class="app">
+        <partial name="_SidebarLector" view-data="ViewData" />
+        <main class="stage" style="padding:32px;">
+
+            <div class="screen-title">
+                <span class="eyebrow">Lector · Historial</span>
+                <h1>Mis préstamos</h1>
+                <p>Consulta tus préstamos activos dentro del sistema.</p>
+            </div>
+
+            @if (TempData["Mensaje"] != null)
+            {
+                <div class="toast-note brass" style="margin-bottom:16px;">@TempData["Mensaje"]</div>
+            }
+
+            @if (!Model.Prestamos.Any())
+            {
+                <div class="empty-state">
+                    <h4>Sin préstamos activos</h4>
+                    <p>No tienes ningún libro prestado actualmente.</p>
+                </div>
+            }
+            else
+            {
+                <div class="card pad-m">
+                    <table>
+                        <thead>
+                            <tr><th>Libro</th><th class="hide-mobile">Fecha préstamo</th><th>Devolución esperada</th><th>Estado</th><th class="hide-mobile">Acción</th></tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var p in Model.Prestamos)
+                            {
+                                <tr>
+                                    <td><div><div class="who">@p.Titulo</div><div class="sub">@p.CodigoInterno</div></div></td>
+                                    <td class="hide-mobile">@p.FechaPrestamo.ToString("dd MMM yyyy")</td>
+                                    <td>@p.FechaDevEsperada.ToString("dd MMM yyyy")</td>
+                                    <td><span class="stamp @(p.Estado == "Vencido" ? "danger" : "ok")">@p.Estado</span></td>
+                                    <td class="hide-mobile">
+                                        @{
+                                            int diasRestantes = (p.FechaDevEsperada.Date - DateTime.Now.Date).Days;
+                                        }
+                                        <div style="font-size:11px; color:var(--ink-soft); margin-bottom:4px;">
+                                            @(diasRestantes >= 0 ? $"{diasRestantes} día(s) restante(s)" : $"{-diasRestantes} día(s) de atraso")
+                                        </div>
+                                        @if (!p.Renovado)
+                                        {
+                                            <form method="post" asp-page-handler="Renovar" style="display:inline;">
+                                                <input type="hidden" name="idPrestamo" value="@p.IdPrestamo" />
+                                                <button class="btn btn-ghost btn-sm" type="submit">Renovar (+7 días)</button>
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <span class="chip">Ya renovado</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+
+        </main>
+    </div>
+    <script src="~/js/site.js"></script>
+</body>
+</html>
