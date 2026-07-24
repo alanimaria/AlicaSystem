@@ -64,7 +64,7 @@
                                 <div class="book-title">@l.Titulo</div>
                                 <div class="book-author">@(l.Autores ?? "Autor no registrado")</div>
                                 <div class="book-meta">
-                                    <span class="stamp @(l.CantidadDisponible > 0 ? "ok" : "danger")">@(l.CantidadDisponible > 0 ? "Disponible" : "Prestado")</span>
+                                    <span class="stamp @(l.EstadoDisponibilidad == "Disponible" ? "ok" : l.EstadoDisponibilidad == "Reservado" ? "warn" : "danger")">@l.EstadoDisponibilidad</span>
                                     <span class="book-code">@l.CodigoInterno · @l.CantidadDisponible ejemplar(es)</span>
                                 </div>
                                 <a class="btn btn-ghost btn-block btn-sm" href="/Lector/FichaLibro?id=@l.IdLibro">Ver ficha</a>

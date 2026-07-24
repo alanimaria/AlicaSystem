@@ -10,8 +10,8 @@
         public string EstadoLibro { get; set; } = string.Empty;
         public int CantidadDisponible { get; set; }
         public int CantidadTotal { get; set; }
-        public string? Autores { get; set; }
-
         public string? Ubicacion { get; set; }
+        public string? Autores { get; set; }
+        public string EstadoDisponibilidad { get; set; } = string.Empty;
     }
 }
