@@ -57,7 +57,7 @@
                                 <h2 style="font-size:22px;">@l.Titulo</h2>
                                 <p style="color:var(--ink-soft); font-size:13px; margin-top:4px;">@(l.Autores ?? "Autor no registrado") · Categoría: @l.Categoria</p>
                             </div>
-                            <span class="stamp @(l.CantidadDisponible > 0 ? "ok" : "danger")">@(l.CantidadDisponible > 0 ? "Disponible" : "Prestado")</span>
+                            <span class="stamp @(l.EstadoDisponibilidad == "Disponible" ? "ok" : l.EstadoDisponibilidad == "Reservado" ? "warn" : "danger")">@l.EstadoDisponibilidad</span>
                         </div>
 
                         <div class="divider"></div>
@@ -87,22 +87,24 @@
                                 <button class="btn btn-primary" disabled>No disponible para reservar</button>
                             }
 
-                            <button type="button" class="dropdown-toggle btn btn-ghost">+ Agregar a una lista</button>
-                            <div class="dropdown-menu">
-                                @if (!Model.ListasUsuario.Any())
-                                {
-                                    <span class="dd-item" style="color:var(--ink-soft);">No tienes listas creadas</span>
-                                }
-                                else
-                                {
-                                    <form method="post" asp-page-handler="AgregarALista">
-                                        <input type="hidden" name="idLibro" value="@l.IdLibro" />
-                                        @foreach (var nombre in Model.ListasUsuario)
-                                        {
-                                            <button type="submit" name="nombreLista" value="@nombre" class="dd-item">@nombre</button>
-                                        }
-                                    </form>
-                                }
+                            <div style="position:relative;">
+                                <button type="button" class="dropdown-toggle btn btn-ghost">+ Agregar a una lista</button>
+                                <div class="dropdown-menu">
+                                    @if (!Model.ListasUsuario.Any())
+                                    {
+                                        <span class="dd-item" style="color:var(--ink-soft);">No tienes listas creadas</span>
+                                    }
+                                    else
+                                    {
+                                        <form method="post" asp-page-handler="AgregarALista">
+                                            <input type="hidden" name="idLibro" value="@l.IdLibro" />
+                                            @foreach (var nombre in Model.ListasUsuario)
+                                            {
+                                                <button type="submit" name="nombreLista" value="@nombre" class="dd-item">@nombre</button>
+                                            }
+                                        </form>
+                                    }
+                                </div>
                             </div>
                         </div>
                     </div>

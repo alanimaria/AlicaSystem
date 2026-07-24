@@ -94,6 +94,32 @@ namespace AlicaSystem.Datos
             }
             return lista;
         }
+        public List<Prestamo> ListarPrestamosPorUsuario(int idUsuario)
+        {
+            var lista = new List<Prestamo>();
+            using SqlConnection cn = conexionBD.ObtenerConexion();
+            cn.Open();
+            using SqlCommand cmd = new SqlCommand("sp_ListarPrestamosPorUsuario", cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@IdUsuario", idUsuario);
+
+            using SqlDataReader dr = cmd.ExecuteReader();
+            while (dr.Read())
+            {
+                lista.Add(new Prestamo
+                {
+                    IdPrestamo = Convert.ToInt32(dr["id_prestamo"]),
+                    Titulo = dr["titulo"].ToString()!,
+                    CodigoInterno = dr["codigo_interno"].ToString()!,
+                    Renovado = Convert.ToBoolean(dr["renovado"]),
+                    FechaPrestamo = Convert.ToDateTime(dr["fecha_prestamo"]),
+                    FechaDevEsperada = Convert.ToDateTime(dr["fecha_dev_esperada"]),
+                    FechaDevReal = dr["fecha_dev_real"] == DBNull.Value ? null : Convert.ToDateTime(dr["fecha_dev_real"]),
+                    Estado = dr["estado"].ToString()!
+                });
+            }
+            return lista;
+        }
 
         public (bool Exito, string Mensaje) RenovarPrestamo(int idPrestamo, int idUsuario)
         {

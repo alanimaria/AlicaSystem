@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using Microsoft.Data.SqlClient;
+using AlicaSystem.Models;
 
 namespace AlicaSystem.Datos
 {
@@ -31,10 +32,6 @@ namespace AlicaSystem.Datos
         // Cuenta cuántas multas sin pagar (fecha_pago = NULL) tiene un
         // usuario específico. Se usa para el KPI "Multas pendientes"
         // del Dashboard Lector.
-        //
-        // NOTA: no confundir con ContarMultasPendientes() (sin usuario),
-        // que ya existe en esta misma clase para el dashboard GLOBAL del
-        // Bibliotecario -- este metodo es distinto, filtra por un usuario.
         public int ContarMultasPendientesPorUsuario(int idUsuario)
         {
             using SqlConnection cn = conexionBD.ObtenerConexion();
@@ -43,6 +40,33 @@ namespace AlicaSystem.Datos
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("@IdUsuario", idUsuario);
             return Convert.ToInt32(cmd.ExecuteScalar());
+        }
+
+        // Lista las multas de un usuario específico, con el libro que
+        // las generó (vista Lector: Mis préstamos, pestaña Multas)
+        public List<Multa> ListarMultasPorUsuario(int idUsuario)
+        {
+            var lista = new List<Multa>();
+            using SqlConnection cn = conexionBD.ObtenerConexion();
+            cn.Open();
+            using SqlCommand cmd = new SqlCommand("sp_ListarMultasPorUsuario", cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@IdUsuario", idUsuario);
+
+            using SqlDataReader dr = cmd.ExecuteReader();
+            while (dr.Read())
+            {
+                lista.Add(new Multa
+                {
+                    IdMulta = Convert.ToInt32(dr["id_multa"]),
+                    Titulo = dr["titulo"].ToString()!,
+                    Monto = Convert.ToDecimal(dr["monto"]),
+                    FechaGeneracion = Convert.ToDateTime(dr["fecha_generacion"]),
+                    FechaPago = dr["fecha_pago"] == DBNull.Value ? null : Convert.ToDateTime(dr["fecha_pago"]),
+                    Estado = dr["estado"].ToString()!
+                });
+            }
+            return lista;
         }
     }
 }

@@ -25,6 +25,7 @@ namespace AlicaSystem.Pages.Lector
         public int ReservasPendientes { get; set; }
         public int MultasPendientes { get; set; }
         public int ListasCreadas { get; set; }
+        public int LimiteListas { get; set; } = 10;
         public List<Prestamo> PrestamosRecientes { get; set; } = new();
         public List<Libro> LibrosSugeridos { get; set; } = new();
 

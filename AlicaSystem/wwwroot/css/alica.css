@@ -529,3 +529,26 @@ a {
     justify-content: flex-end;
     gap: 10px;
 }
+.btn-tab {
+    background: transparent;
+    border: none;
+    padding: 10px 4px;
+    margin-right: 22px;
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    border-bottom: 2px solid transparent;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+    .btn-tab.active {
+        color: var(--navy-deep);
+        border-color: var(--clay);
+        font-weight: 600;
+    }
+/* Oculta el ícono nativo de "mostrar contraseña" de Edge/IE,
+   para que no se duplique con el ícono custom del toggle-password */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+    display: none;
+}
