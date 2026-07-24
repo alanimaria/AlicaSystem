@@ -17,11 +17,46 @@ document.querySelectorAll('.toggle-password').forEach(function (boton) {
 });
 
 // Confirmación antes de eliminar (cualquier form con la clase "confirm-delete")
+// Muestra un modal con el estilo del sistema en vez del confirm() nativo del navegador
+function mostrarModalConfirmacion(mensaje) {
+    return new Promise(function (resolve) {
+        const overlay = document.createElement('div');
+        overlay.className = 'modal-overlay';
+        overlay.innerHTML = `
+            <div class="modal-box">
+                <p>${mensaje}</p>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-ghost" data-accion="cancelar">Cancelar</button>
+                    <button type="button" class="btn btn-danger" data-accion="confirmar">Eliminar</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+
+        overlay.addEventListener('click', function (e) {
+            if (e.target.dataset.accion === 'confirmar') {
+                document.body.removeChild(overlay);
+                resolve(true);
+            } else if (e.target.dataset.accion === 'cancelar' || e.target === overlay) {
+                document.body.removeChild(overlay);
+                resolve(false);
+            }
+        });
+    });
+}
+
 document.querySelectorAll('.confirm-delete').forEach(function (form) {
     form.addEventListener('submit', function (e) {
-        if (!confirm('¿Seguro que quieres eliminar esto? Esta acción no se puede deshacer.')) {
-            e.preventDefault();
-        }
+        if (form.dataset.confirmado === 'true') return; // ya confirmado, deja pasar
+
+        e.preventDefault();
+        mostrarModalConfirmacion('¿Seguro que quieres eliminar esto? Esta acción no se puede deshacer.')
+            .then(function (confirmado) {
+                if (confirmado) {
+                    form.dataset.confirmado = 'true';
+                    form.requestSubmit();
+                }
+            });
     });
 });
 

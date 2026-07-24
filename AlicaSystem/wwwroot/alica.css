@@ -421,3 +421,34 @@ tbody tr:hover{background:var(--paper-dim);}
   .topbar{padding:14px 16px;}
   .canvas-wrap{padding:14px;}
 }
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(18,26,37,.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.modal-box {
+    background: var(--card);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-card);
+    padding: 24px;
+    max-width: 360px;
+    box-shadow: var(--shadow-card);
+}
+
+    .modal-box p {
+        font-size: 13.5px;
+        color: var(--ink);
+        margin-bottom: 18px;
+        line-height: 1.5;
+    }
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
