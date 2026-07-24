@@ -16,12 +16,46 @@ document.querySelectorAll('.toggle-password').forEach(function (boton) {
     });
 });
 
-// Confirmación antes de eliminar (cualquier form con la clase "confirm-delete")
+// Modal de confirmación reutilizable (reemplaza el confirm() nativo del navegador)
+let formPendienteDeConfirmar = null;
+
+function crearModalConfirmacion() {
+    if (document.getElementById('modal-confirmacion')) return;
+
+    const modal = document.createElement('div');
+    modal.id = 'modal-confirmacion';
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+        <div class="modal-card">
+            <p id="modal-confirmacion-texto">¿Seguro que quieres continuar?</p>
+            <div class="modal-acciones">
+                <button type="button" class="btn btn-ghost" id="modal-cancelar">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="modal-confirmar">Confirmar</button>
+            </div>
+        </div>`;
+    document.body.appendChild(modal);
+
+    document.getElementById('modal-cancelar').addEventListener('click', function () {
+        modal.classList.remove('show');
+        formPendienteDeConfirmar = null;
+    });
+
+    document.getElementById('modal-confirmar').addEventListener('click', function () {
+        modal.classList.remove('show');
+        if (formPendienteDeConfirmar) {
+            formPendienteDeConfirmar.submit();
+        }
+    });
+}
+
 document.querySelectorAll('.confirm-delete').forEach(function (form) {
     form.addEventListener('submit', function (e) {
-        if (!confirm('¿Seguro que quieres eliminar esto? Esta acción no se puede deshacer.')) {
-            e.preventDefault();
-        }
+        e.preventDefault();
+        crearModalConfirmacion();
+        const mensaje = form.getAttribute('data-confirm-message') || '¿Seguro que quieres eliminar esto? Esta acción no se puede deshacer.';
+        document.getElementById('modal-confirmacion-texto').textContent = mensaje;
+        formPendienteDeConfirmar = form;
+        document.getElementById('modal-confirmacion').classList.add('show');
     });
 });
 

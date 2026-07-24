@@ -492,3 +492,40 @@ tbody tr:hover{background:var(--paper-dim);}
     .link-plain:hover {
         text-decoration: underline;
     }
+a {
+    text-decoration: none;
+    color: inherit;
+}
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(20,30,35,.45);
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+    .modal-overlay.show {
+        display: flex;
+    }
+
+.modal-card {
+    background: var(--paper);
+    border-radius: 10px;
+    padding: 22px;
+    max-width: 360px;
+    box-shadow: 0 12px 30px rgba(0,0,0,.25);
+}
+
+    .modal-card p {
+        font-size: 13.5px;
+        color: var(--ink);
+        margin-bottom: 18px;
+    }
+
+.modal-acciones {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}

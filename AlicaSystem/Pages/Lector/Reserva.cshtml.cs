@@ -1,11 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using AlicaSystem.Datos;
 using AlicaSystem.Models;
 
 namespace AlicaSystem.Pages.Lector
 {
-    public class ReservaModel : PageModel
+    public class ReservaModel : PaginaLectorBase
     {
         private readonly LibroDatos libroDatos;
         private readonly ReservaDatos reservaDatos;
@@ -20,9 +19,6 @@ namespace AlicaSystem.Pages.Lector
 
         public IActionResult OnGet(int idLibro)
         {
-            int idUsuario = HttpContext.Session.GetInt32("IdUsuario") ?? 0;
-            if (idUsuario == 0) return RedirectToPage("/Login");
-
             Libro = libroDatos.ObtenerLibroPorId(idLibro);
             if (Libro == null) return RedirectToPage("/Lector/Catalogo");
 
@@ -31,16 +27,16 @@ namespace AlicaSystem.Pages.Lector
 
         public IActionResult OnPost(int idLibro)
         {
-            int idUsuario = HttpContext.Session.GetInt32("IdUsuario") ?? 0;
-            var (idReserva, mensaje) = reservaDatos.RegistrarReserva(idUsuario, idLibro);
+            bool ok = reservaDatos.RegistrarReserva(IdUsuarioSesion, idLibro, out string? error);
 
-            TempData["Mensaje"] = mensaje;
+            if (!ok)
+            {
+                TempData["Mensaje"] = error;
+                return RedirectToPage(new { idLibro });
+            }
 
-            if (idReserva > 0)
-                return RedirectToPage("/Lector/MisReservas");
-
-            // si falló (ya tiene reserva activa o no hay disponibilidad), vuelve a la misma pantalla
-            return RedirectToPage(new { idLibro });
+            TempData["Mensaje"] = "Reserva confirmada correctamente.";
+            return RedirectToPage("/Lector/MisReservas");
         }
     }
 }

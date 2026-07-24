@@ -1,11 +1,10 @@
 using AlicaSystem.Datos;
 using AlicaSystem.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace AlicaSystem.Pages.Lector
 {
-    public class DashboardModel : PageModel
+    public class DashboardModel : PaginaLectorBase
     {
         private readonly PrestamoDatos prestamoDatos;
         private readonly ReservaDatos reservaDatos;
@@ -22,8 +21,6 @@ namespace AlicaSystem.Pages.Lector
             this.libroDatos = libroDatos;
         }
 
-        public string NombreUsuario { get; set; } = string.Empty;
-
         public int PrestamosActivos { get; set; }
         public int ReservasPendientes { get; set; }
         public int MultasPendientes { get; set; }
@@ -31,25 +28,14 @@ namespace AlicaSystem.Pages.Lector
         public List<Prestamo> PrestamosRecientes { get; set; } = new();
         public List<Libro> LibrosSugeridos { get; set; } = new();
 
-        public IActionResult OnGet()
+        public void OnGet()
         {
-            int? idUsuario = HttpContext.Session.GetInt32("IdUsuario");
-
-            if (idUsuario == null)
-            {
-                return RedirectToPage("/Login");
-            }
-
-            NombreUsuario = HttpContext.Session.GetString("NombreUsuario") ?? "Usuario";
-
-            PrestamosActivos = prestamoDatos.ContarPrestamosActivosPorUsuario(idUsuario.Value);
-            ReservasPendientes = reservaDatos.ContarReservasPendientesPorUsuario(idUsuario.Value);
-            MultasPendientes = multaDatos.ContarMultasPendientesPorUsuario(idUsuario.Value);
-            ListasCreadas = listaDatos.ContarListasActivas(idUsuario.Value);
-            PrestamosRecientes = prestamoDatos.ListarPrestamosActivosPorUsuario(idUsuario.Value).Take(2).ToList();
+            PrestamosActivos = prestamoDatos.ContarPrestamosActivosPorUsuario(IdUsuarioSesion);
+            ReservasPendientes = reservaDatos.ContarReservasPendientesPorUsuario(IdUsuarioSesion);
+            MultasPendientes = multaDatos.ContarMultasPendientesPorUsuario(IdUsuarioSesion);
+            ListasCreadas = listaDatos.ContarListasActivas(IdUsuarioSesion);
+            PrestamosRecientes = prestamoDatos.ListarPrestamosActivosPorUsuario(IdUsuarioSesion).Take(2).ToList();
             LibrosSugeridos = libroDatos.ListarCatalogo(null, null, true).Take(2).ToList();
-
-            return Page();
         }
     }
 }
