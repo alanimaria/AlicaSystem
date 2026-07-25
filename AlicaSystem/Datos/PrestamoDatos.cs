@@ -142,7 +142,11 @@ namespace AlicaSystem.Datos
         // Registra la devolucion de un prestamo activo.
         // Devuelve true si se registro bien, false si el prestamo no existe
         // o ya estaba devuelto.
-        public bool RegistrarDevolucion(int idPrestamo)
+        // Registra la devolucion de un prestamo activo.
+        // Ahora tambien recibe el idEmpleado que procesa la devolucion, porque
+        // si el prestamo se devuelve tarde, se genera una multa automatica
+        // (RD$50 por dia de atraso) y esa multa necesita registrar quien la generó.
+        public bool RegistrarDevolucion(int idPrestamo, int idEmpleado)
         {
             using SqlConnection cn = conexionBD.ObtenerConexion();
             cn.Open();
@@ -150,6 +154,7 @@ namespace AlicaSystem.Datos
             using SqlCommand cmd = new SqlCommand("sp_RegistrarDevolucion", cn);
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("@IdPrestamo", idPrestamo);
+            cmd.Parameters.AddWithValue("@IdEmpleado", idEmpleado);
 
             return Convert.ToInt32(cmd.ExecuteScalar()) == 1;
         }
