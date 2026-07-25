@@ -84,12 +84,11 @@ namespace AlicaSystem.Datos
                 {
                     IdPrestamo = Convert.ToInt32(dr["id_prestamo"]),
                     Titulo = dr["titulo"].ToString()!,
-                    Renovado = Convert.ToBoolean(dr["renovado"]),
+                    CantidadRenovaciones = Convert.ToInt32(dr["cantidad_renovaciones"]),
                     CodigoInterno = dr["codigo_interno"].ToString()!,
                     FechaPrestamo = Convert.ToDateTime(dr["fecha_prestamo"]),
                     FechaDevEsperada = Convert.ToDateTime(dr["fecha_dev_esperada"]),
                     Estado = dr["estado"].ToString()!
-
                 });
             }
             return lista;
@@ -111,7 +110,7 @@ namespace AlicaSystem.Datos
                     IdPrestamo = Convert.ToInt32(dr["id_prestamo"]),
                     Titulo = dr["titulo"].ToString()!,
                     CodigoInterno = dr["codigo_interno"].ToString()!,
-                    Renovado = Convert.ToBoolean(dr["renovado"]),
+                    CantidadRenovaciones = Convert.ToInt32(dr["cantidad_renovaciones"]),
                     FechaPrestamo = Convert.ToDateTime(dr["fecha_prestamo"]),
                     FechaDevEsperada = Convert.ToDateTime(dr["fecha_dev_esperada"]),
                     FechaDevReal = dr["fecha_dev_real"] == DBNull.Value ? null : Convert.ToDateTime(dr["fecha_dev_real"]),

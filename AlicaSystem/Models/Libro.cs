@@ -13,5 +13,6 @@
         public string? Ubicacion { get; set; }
         public string? Autores { get; set; }
         public string EstadoDisponibilidad { get; set; } = string.Empty;
+        public string? Descripcion { get; set; }
     }
 }

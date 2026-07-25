@@ -56,6 +56,10 @@
                             <div>
                                 <h2 style="font-size:22px;">@l.Titulo</h2>
                                 <p style="color:var(--ink-soft); font-size:13px; margin-top:4px;">@(l.Autores ?? "Autor no registrado") · Categoría: @l.Categoria</p>
+                                @if (!string.IsNullOrWhiteSpace(l.Descripcion))
+                                {
+                                    <p style="color:var(--ink); font-size:13px; margin-top:10px; line-height:1.6;">@l.Descripcion</p>
+                                }
                             </div>
                             <span class="stamp @(l.EstadoDisponibilidad == "Disponible" ? "ok" : l.EstadoDisponibilidad == "Reservado" ? "warn" : "danger")">@l.EstadoDisponibilidad</span>
                         </div>

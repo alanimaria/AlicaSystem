@@ -60,28 +60,18 @@
                                         <td>@p.FechaDevEsperada.ToString("dd MMM yyyy")</td>
                                         <td><span class="stamp @(p.Estado == "Vencido" ? "danger" : "ok")">@p.Estado</span></td>
                                         <td class="hide-mobile">
-                                            @if (Model.Tab == "activos")
-                                            {
-                                                int diasRestantes = (p.FechaDevEsperada.Date - DateTime.Now.Date).Days;
-                                                <div style="font-size:11px; color:var(--ink-soft); margin-bottom:4px;">
-                                                    @(diasRestantes >= 0 ? $"{diasRestantes} día(s) restante(s)" : $"{-diasRestantes} día(s) de atraso")
-                                                </div>
-                                                if (!p.Renovado)
-                                                {
-                                                    <form method="post" asp-page-handler="Renovar" style="display:inline;">
-                                                        <input type="hidden" name="idPrestamo" value="@p.IdPrestamo" />
-                                                        <button class="btn btn-ghost btn-sm" type="submit">Renovar (+7 días)</button>
-                                                    </form>
-                                                }
-                                                else
-                                                {
-                                                    <span class="chip">Ya renovado</span>
-                                                }
-                                            }
-                                            else
-                                            {
-                                                <span>Devuelto: @(p.FechaDevReal?.ToString("dd MMM yyyy") ?? "-")</span>
-                                            }
+                                           @if (p.CantidadRenovaciones < 5)
+{
+    <form method="post" asp-page-handler="Renovar" style="display:inline;">
+        <input type="hidden" name="idPrestamo" value="@p.IdPrestamo" />
+        <button class="btn btn-ghost btn-sm" type="submit">Renovar (+7 días)</button>
+    </form>
+    <div style="font-size:10px; color:var(--ink-soft); margin-top:2px;">@p.CantidadRenovaciones/5 renovaciones</div>
+}
+else
+{
+    <span class="chip">Máximo de renovaciones alcanzado</span>
+}
                                         </td>
                                     </tr>
                                 }

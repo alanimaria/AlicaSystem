@@ -9,6 +9,6 @@
         public DateTime FechaDevEsperada { get; set; }
         public DateTime? FechaDevReal { get; set; }
         public string Estado { get; set; } = string.Empty;
-        public bool Renovado { get; set; }
+        public int CantidadRenovaciones { get; set; }
     }
 }

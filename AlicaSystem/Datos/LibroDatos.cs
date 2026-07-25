@@ -67,7 +67,8 @@ namespace AlicaSystem.Datos
                     CantidadTotal = dr["cantidad_total"] == DBNull.Value ? 0 : Convert.ToInt32(dr["cantidad_total"]),
                     Ubicacion = dr["ubicacion"] == DBNull.Value ? null : dr["ubicacion"].ToString(),
                     Autores = dr["lista_autores"] == DBNull.Value ? null : dr["lista_autores"].ToString(),
-                    EstadoDisponibilidad = dr["estado_disponibilidad"].ToString()!
+                    EstadoDisponibilidad = dr["estado_disponibilidad"].ToString()!,
+                    Descripcion = dr["descripcion"] == DBNull.Value ? null : dr["descripcion"].ToString()
                 };
             }
             return null;
