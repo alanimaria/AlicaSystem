@@ -30,9 +30,25 @@ namespace AlicaSystem.Pages.Bibliotecario
             return Page();
         }
 
-        public IActionResult OnPostActualizarEstado(int idMulta)
+        // Marca una multa como Pagada o Perdonada.
+        // RN-MUL-04: solo Bibliotecario o Administrador pueden perdonar.
+        // Se revalida el rol aqui tambien, no solo en OnGet, porque este
+        // handler se llama por separado via fetch (POST directo).
+        public IActionResult OnPostActualizarEstado(int idMulta, string estadoDestino)
         {
-            bool exito = multaDatos.ActualizarEstadoMulta(idMulta);
+            string? rol = HttpContext.Session.GetString("Rol");
+
+            if (rol != "Bibliotecario" && rol != "Administrador")
+            {
+                return new JsonResult(new { exito = false, mensaje = "No autorizado." });
+            }
+
+            if (estadoDestino != "Pagada" && estadoDestino != "Perdonada")
+            {
+                return new JsonResult(new { exito = false, mensaje = "Estado destino invalido." });
+            }
+
+            bool exito = multaDatos.ActualizarEstadoMulta(idMulta, estadoDestino);
             return new JsonResult(new { exito });
         }
     }
