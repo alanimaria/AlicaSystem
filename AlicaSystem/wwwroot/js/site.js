@@ -92,3 +92,71 @@ document.querySelectorAll('[data-maxlen]').forEach(function (input) {
         contador.textContent = input.value.length + '/25';
     });
 });
+// ---- Registrar devolución (Bibliotecario) ----
+
+async function buscarLector() {
+    const matricula = document.getElementById('matriculaLector').value;
+    const resp = await fetch('?handler=BuscarLector&matricula=' + encodeURIComponent(matricula));
+    const data = await resp.json();
+    const texto = document.getElementById('resultadoLector');
+    const contenedor = document.getElementById('listaPrestamos');
+    contenedor.innerHTML = '';
+
+    if (!data.encontrado) {
+        texto.style.color = '#b3261e';
+        texto.innerText = 'Usuario no encontrado.';
+        return;
+    }
+
+    texto.style.color = '';
+    texto.innerText = data.nombreCompleto;
+
+    if (data.prestamos.length === 0) {
+        contenedor.innerHTML = '<div class="empty-state" style="margin-top:14px;"><h4>Sin préstamos activos</h4><p>Este usuario no tiene libros pendientes por devolver.</p></div>';
+        return;
+    }
+
+    let html = '<table style="margin-top:14px;"><thead><tr><th>Libro</th><th>Devolución esperada</th><th>Atraso</th><th>Estado del libro</th><th></th></tr></thead><tbody>';
+    data.prestamos.forEach(p => {
+        const atraso = p.diasAtraso > 0
+            ? `<span class="stamp danger">${p.diasAtraso} día(s)</span>`
+            : `<span class="stamp ok">A tiempo</span>`;
+        html += `<tr>
+            <td>${p.titulo}<div class="sub">${p.codigoInterno}</div></td>
+            <td>${p.fechaDevEsperada}</td>
+            <td>${atraso}</td>
+            <td>
+                <label style="font-size:11px; display:flex; align-items:center; gap:4px;">
+                    <input type="checkbox" id="danado-${p.idPrestamo}"> Dañado
+                </label>
+                <input type="number" id="monto-${p.idPrestamo}" class="field" placeholder="Monto RD$" style="width:90px; font-size:11px; padding:4px 6px; margin-top:2px;">
+            </td>
+            <td><button type="button" class="btn btn-primary btn-sm" onclick="registrarDevolucion(${p.idPrestamo})"><i class="bi bi-check-lg"></i> Devolver</button></td>
+        </tr>`;
+    });
+    html += '</tbody></table>';
+    contenedor.innerHTML = html;
+}
+
+async function registrarDevolucion(idPrestamo) {
+    const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+    const danado = document.getElementById('danado-' + idPrestamo).checked;
+    const monto = document.getElementById('monto-' + idPrestamo).value || 0;
+
+    const body = new URLSearchParams();
+    body.append('idPrestamo', idPrestamo);
+    body.append('libroDanado', danado);
+    body.append('montoDano', monto);
+    body.append('__RequestVerificationToken', token);
+
+    const resp = await fetch('?handler=RegistrarConEstado', { method: 'POST', body: body });
+    const data = await resp.json();
+
+    const resultado = document.getElementById('resultadoFinal');
+    resultado.style.color = data.exito ? '' : '#b3261e';
+    resultado.innerText = data.mensaje;
+
+    if (data.exito) {
+        buscarLector();
+    }
+}
