@@ -56,6 +56,57 @@ namespace AlicaSystem.Datos
 
             return usuario;
         }
+        public List<Usuario> ListarUsuariosAdmin()
+        {
+            var lista = new List<Usuario>();
+            using SqlConnection cn = conexionBD.ObtenerConexion();
+            cn.Open();
+            using SqlCommand cmd = new SqlCommand("sp_ListarUsuariosAdmin", cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+
+            using SqlDataReader dr = cmd.ExecuteReader();
+            while (dr.Read())
+            {
+                lista.Add(new Usuario
+                {
+                    IdUsuario = Convert.ToInt32(dr["id_usuario"]),
+                    Matricula = dr["matricula"].ToString()!,
+                    Nombre = dr["nombre"].ToString()!,
+                    Apellido = dr["apellido"].ToString()!,
+                    Email = dr["email"].ToString()!,
+                    Telefono = dr["telefono"] == DBNull.Value ? null : dr["telefono"].ToString(),
+                    FechaRegistro = Convert.ToDateTime(dr["fecha_registro"]),
+                    Estado = Convert.ToBoolean(dr["estado"])
+                });
+            }
+            return lista;
+        }
+
+        public void ActualizarUsuarioAdmin(int idUsuario, string matricula, string nombre, string apellido, string email, string? telefono)
+        {
+            using SqlConnection cn = conexionBD.ObtenerConexion();
+            cn.Open();
+            using SqlCommand cmd = new SqlCommand("sp_ActualizarUsuarioAdmin", cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@IdUsuario", idUsuario);
+            cmd.Parameters.AddWithValue("@Matricula", matricula);
+            cmd.Parameters.AddWithValue("@Nombre", nombre);
+            cmd.Parameters.AddWithValue("@Apellido", apellido);
+            cmd.Parameters.AddWithValue("@Email", email);
+            cmd.Parameters.AddWithValue("@Telefono", (object?)telefono ?? DBNull.Value);
+            cmd.ExecuteNonQuery();
+        }
+
+        public void CambiarEstadoUsuario(int idUsuario, bool estado)
+        {
+            using SqlConnection cn = conexionBD.ObtenerConexion();
+            cn.Open();
+            using SqlCommand cmd = new SqlCommand("sp_CambiarEstadoUsuario", cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@IdUsuario", idUsuario);
+            cmd.Parameters.AddWithValue("@Estado", estado);
+            cmd.ExecuteNonQuery();
+        }
 
         // Busca un lector por su matricula, solo entre usuarios activos.
         // Se usa en Registrar Prestamo, para que el bibliotecario

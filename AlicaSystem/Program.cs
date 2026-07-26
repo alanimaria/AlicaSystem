@@ -17,6 +17,7 @@ builder.Services.AddScoped<AlicaSystem.Datos.EmpleadoDatos>();
 builder.Services.AddScoped<PrestamoDatos>();
 builder.Services.AddScoped<ReservaDatos>();
 builder.Services.AddScoped<MultaDatos>();
+builder.Services.AddScoped<AlicaSystem.Datos.AutorDatos>();
 
 // Esto prende el sistema de Session, y le decimos cómo comportarse:
 // que la sesión expire tras 30 minutos sin actividad
