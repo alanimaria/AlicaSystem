@@ -9,11 +9,13 @@ namespace AlicaSystem.Pages.Bibliotecario
     {
         private readonly PrestamoDatos prestamoDatos;
         private readonly UsuarioDatos usuarioDatos;
+        private readonly MultaDatos multaDatos;
 
-        public DevolucionesModel(PrestamoDatos prestamoDatos, UsuarioDatos usuarioDatos)
+        public DevolucionesModel(PrestamoDatos prestamoDatos, UsuarioDatos usuarioDatos, MultaDatos multaDatos)
         {
             this.prestamoDatos = prestamoDatos;
             this.usuarioDatos = usuarioDatos;
+            this.multaDatos = multaDatos;
         }
 
         public string NombreUsuario { get; set; } = string.Empty;
@@ -55,7 +57,7 @@ namespace AlicaSystem.Pages.Bibliotecario
             });
         }
 
-        // Registra la devolución del préstamo seleccionado
+      
         public IActionResult OnPostRegistrar(int idPrestamo)
         {
             int? idEmpleado = HttpContext.Session.GetInt32("IdEmpleado");
@@ -70,6 +72,26 @@ namespace AlicaSystem.Pages.Bibliotecario
                 exito,
                 mensaje = exito ? "Devolución registrada correctamente." : "No se pudo registrar la devolución (préstamo no encontrado o ya devuelto)."
             });
+        }
+        // Registra la devolucion Y, si el libro llego danado, agrega la multa aparte
+        public IActionResult OnPostRegistrarConEstado(int idPrestamo, bool libroDanado, decimal montoDano)
+        {
+            int? idEmpleado = HttpContext.Session.GetInt32("IdEmpleado");
+            if (idEmpleado == null)
+                return new JsonResult(new { exito = false, mensaje = "Sesión inválida. Vuelve a iniciar sesión." });
+
+            bool exito = prestamoDatos.RegistrarDevolucion(idPrestamo, idEmpleado.Value);
+            if (!exito)
+                return new JsonResult(new { exito = false, mensaje = "No se pudo registrar la devolución (préstamo no encontrado o ya devuelto)." });
+
+            string mensaje = "Devolución registrada correctamente.";
+            if (libroDanado && montoDano > 0)
+            {
+                var (exitoMulta, mensajeMulta) = multaDatos.RegistrarMultaPorEstadoLibro(idPrestamo, idEmpleado.Value, montoDano);
+                mensaje += exitoMulta ? " Multa por mal estado registrada." : $" Devolución OK, pero la multa falló: {mensajeMulta}";
+            }
+
+            return new JsonResult(new { exito = true, mensaje });
         }
     }
 }

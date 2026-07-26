@@ -98,7 +98,7 @@ else
                                 @foreach (var m in Model.Multas)
                                 {
                                     <tr>
-                                        <td>@m.Titulo</td>
+                                        <td>@m.Titulo<div class="sub">@m.Motivo</div></td>
                                         <td>RD$ @m.Monto.ToString("N2")</td>
                                         <td>@m.FechaGeneracion.ToString("dd MMM yyyy")</td>
                                         <td><span class="stamp @(m.Estado == "Pagada" ? "ok" : "warn")">@m.Estado</span></td>

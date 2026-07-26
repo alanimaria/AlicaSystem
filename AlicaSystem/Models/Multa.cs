@@ -8,5 +8,6 @@
         public DateTime FechaGeneracion { get; set; }
         public DateTime? FechaPago { get; set; }
         public string Estado { get; set; } = string.Empty;
+        public string? Motivo { get; set; }
     }
 }
