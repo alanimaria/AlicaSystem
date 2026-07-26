@@ -69,25 +69,23 @@
                             </div>
                         </div>
 
-
-                        <p style="font-size:12px; color:var(--ink-soft);">@l.CantidadLibros libro(s) · Actualizada: @l.UltimaActualizacion.ToShortDateString()</p>
-
+                        <p style="font-size:12px; color:var(--ink-soft);">@l.CantidadLibros libro(s) · Actualizada: @(l.UltimaActualizacion.HasValue ? l.UltimaActualizacion.Value.ToShortDateString() : "Sin libros aún")</p>
                         @if (Model.Ver == l.NombreLista)
-                        {
-                            <ul>
-                          @foreach (var libro in Model.LibrosDeListaSeleccionada)
-                          {
-                            <li style="display:flex; justify-content:space-between; align-items:center;">
-                              @libro.Titulo
-                              <form method="post" asp-page-handler="QuitarLibro" class="confirm-delete" style="display:inline;">
-                                <input type="hidden" name="idLibro" value="@libro.IdLibro" />
-                                <input type="hidden" name="nombreLista" value="@l.NombreLista" />
-                                <button type="submit" class="btn btn-ghost btn-sm"><i class="bi bi-x-circle"></i></button>
-                              </form>
-                            </li>
-                          }
-                        </ul>
-                        }
+{
+    <ul style="list-style:none; margin:10px 0 0; padding:10px 0 0; border-top:1px solid var(--line); display:flex; flex-direction:column; gap:6px;">
+        @foreach (var libro in Model.LibrosDeListaSeleccionada)
+        {
+            <li style="display:flex; justify-content:space-between; align-items:center; padding:4px 0;">
+                <span style="font-size:12px; color:var(--ink); line-height:1.3;">@libro.Titulo</span>
+                <form method="post" asp-page-handler="QuitarLibro" class="confirm-delete" style="display:inline;">
+                    <input type="hidden" name="idLibro" value="@libro.IdLibro" />
+                    <input type="hidden" name="nombreLista" value="@l.NombreLista" />
+                    <button type="submit" class="btn btn-ghost btn-sm" style="padding:2px 6px;"><i class="bi bi-x-circle" style="font-size:12px;"></i></button>
+                </form>
+            </li>
+        }
+    </ul>
+}
          
                     </div>
                 }
