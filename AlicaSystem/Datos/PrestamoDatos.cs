@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using Microsoft.Data.SqlClient;
 using AlicaSystem.Models;
 
@@ -60,7 +60,6 @@ namespace AlicaSystem.Datos
             using SqlCommand cmd = new SqlCommand("sp_BuscarLibroPorCodigo", cn);
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("@CodigoInterno", codigoInterno);
-
             using SqlDataReader dr = cmd.ExecuteReader();
             if (dr.Read())
             {
@@ -84,7 +83,6 @@ namespace AlicaSystem.Datos
             cmd.Parameters.AddWithValue("@IdLibro", idLibro);
             cmd.Parameters.AddWithValue("@IdEmpleado", idEmpleado);
             cmd.Parameters.AddWithValue("@DiasPlazo", diasPlazo);
-
             using SqlDataReader dr = cmd.ExecuteReader();
             if (dr.Read())
             {
@@ -95,6 +93,10 @@ namespace AlicaSystem.Datos
             return (0, "No se pudo registrar el prestamo.");
         }
 
+        // Registra la devolucion de un prestamo activo.
+        // Recibe el idEmpleado que procesa la devolucion, porque si el
+        // prestamo se devuelve tarde, se genera una multa automatica
+        // (RD$50 por dia de atraso) y esa multa necesita registrar quien la generó.
         public bool RegistrarDevolucion(int idPrestamo, int idEmpleado)
         {
             using SqlConnection cn = conexionBD.ObtenerConexion();
@@ -108,6 +110,8 @@ namespace AlicaSystem.Datos
 
         // ---- Métodos de Lector (Mis préstamos) ----
 
+        // Cuenta cuántos préstamos activos tiene un usuario específico.
+        // Se usa para el KPI "Préstamos activos X/3" del Dashboard Lector.
         public int ContarPrestamosActivosPorUsuario(int idUsuario)
         {
             using SqlConnection cn = conexionBD.ObtenerConexion();
