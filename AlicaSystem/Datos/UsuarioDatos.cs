@@ -54,8 +54,40 @@ namespace AlicaSystem.Datos
                 usuario.Estado = Convert.ToBoolean(dr["estado"]);
             }
 
-
             return usuario;
+        }
+
+        // Busca un lector por su matricula, solo entre usuarios activos.
+        // Se usa en Registrar Prestamo, para que el bibliotecario
+        // confirme visualmente que es la persona correcta antes de prestar.
+        //
+        // Devuelve una tupla en vez de un Usuario completo porque
+        // PrestamosActivos y TieneMultaPendiente son datos calculados
+        // (no columnas de la tabla usuario), y son especificos de esta
+        // pantalla.
+        public (int IdUsuario, string Nombre, string Apellido, string Matricula, int PrestamosActivos, bool TieneMultaPendiente)? BuscarPorMatricula(string matricula)
+        {
+            using SqlConnection cn = conexionBD.ObtenerConexion();
+            cn.Open();
+
+            using SqlCommand cmd = new SqlCommand("sp_BuscarUsuarioPorMatricula", cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@Matricula", matricula);
+
+            using SqlDataReader dr = cmd.ExecuteReader();
+            if (dr.Read())
+            {
+                return (
+                    Convert.ToInt32(dr["id_usuario"]),
+                    dr["nombre"].ToString()!,
+                    dr["apellido"].ToString()!,
+                    dr["matricula"].ToString()!,
+                    Convert.ToInt32(dr["PrestamosActivos"]),
+                    Convert.ToInt32(dr["TieneMultaPendiente"]) == 1
+                );
+            }
+
+            return null;
         }
     }
 }

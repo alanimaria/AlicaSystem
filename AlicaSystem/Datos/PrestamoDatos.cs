@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using Microsoft.Data.SqlClient;
 using AlicaSystem.Models;
 
@@ -52,10 +52,66 @@ namespace AlicaSystem.Datos
             }
             return lista;
         }
-        // Cuenta cuántos préstamos activos tiene un usuario específico
-        // (un préstamo esta "activo" si todavia no se ha devuelto el libro,
-        // es decir, fecha_dev_real IS NULL). Se usa para el KPI
-        // "Préstamos activos X/3" del Dashboard Lector.
+
+        public (int IdLibro, string Titulo, string CodigoInterno, int CantidadDisponible)? BuscarLibroPorCodigo(string codigoInterno)
+        {
+            using SqlConnection cn = conexionBD.ObtenerConexion();
+            cn.Open();
+            using SqlCommand cmd = new SqlCommand("sp_BuscarLibroPorCodigo", cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@CodigoInterno", codigoInterno);
+            using SqlDataReader dr = cmd.ExecuteReader();
+            if (dr.Read())
+            {
+                return (
+                    Convert.ToInt32(dr["id_libro"]),
+                    dr["titulo"].ToString()!,
+                    dr["codigo_interno"].ToString()!,
+                    Convert.ToInt32(dr["cantidad_disponible"])
+                );
+            }
+            return null;
+        }
+
+        public (int IdPrestamo, string Mensaje) RegistrarPrestamo(int idUsuario, int idLibro, int idEmpleado, int diasPlazo = 7)
+        {
+            using SqlConnection cn = conexionBD.ObtenerConexion();
+            cn.Open();
+            using SqlCommand cmd = new SqlCommand("sp_RegistrarPrestamo", cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@IdUsuario", idUsuario);
+            cmd.Parameters.AddWithValue("@IdLibro", idLibro);
+            cmd.Parameters.AddWithValue("@IdEmpleado", idEmpleado);
+            cmd.Parameters.AddWithValue("@DiasPlazo", diasPlazo);
+            using SqlDataReader dr = cmd.ExecuteReader();
+            if (dr.Read())
+            {
+                int idPrestamo = Convert.ToInt32(dr["IdPrestamo"]);
+                string mensaje = dr["Mensaje"].ToString()!;
+                return (idPrestamo, mensaje);
+            }
+            return (0, "No se pudo registrar el prestamo.");
+        }
+
+        // Registra la devolucion de un prestamo activo.
+        // Recibe el idEmpleado que procesa la devolucion, porque si el
+        // prestamo se devuelve tarde, se genera una multa automatica
+        // (RD$50 por dia de atraso) y esa multa necesita registrar quien la generó.
+        public bool RegistrarDevolucion(int idPrestamo, int idEmpleado)
+        {
+            using SqlConnection cn = conexionBD.ObtenerConexion();
+            cn.Open();
+            using SqlCommand cmd = new SqlCommand("sp_RegistrarDevolucion", cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@IdPrestamo", idPrestamo);
+            cmd.Parameters.AddWithValue("@IdEmpleado", idEmpleado);
+            return Convert.ToInt32(cmd.ExecuteScalar()) == 1;
+        }
+
+        // ---- Métodos de Lector (Mis préstamos) ----
+
+        // Cuenta cuántos préstamos activos tiene un usuario específico.
+        // Se usa para el KPI "Préstamos activos X/3" del Dashboard Lector.
         public int ContarPrestamosActivosPorUsuario(int idUsuario)
         {
             using SqlConnection cn = conexionBD.ObtenerConexion();
@@ -65,8 +121,6 @@ namespace AlicaSystem.Datos
             cmd.Parameters.AddWithValue("@IdUsuario", idUsuario);
             return Convert.ToInt32(cmd.ExecuteScalar());
         }
-
-        // ---- Métodos agregados para Lector (Mis préstamos) ----
 
         public List<Prestamo> ListarPrestamosActivosPorUsuario(int idUsuario)
         {
@@ -93,6 +147,7 @@ namespace AlicaSystem.Datos
             }
             return lista;
         }
+
         public List<Prestamo> ListarPrestamosPorUsuario(int idUsuario)
         {
             var lista = new List<Prestamo>();
