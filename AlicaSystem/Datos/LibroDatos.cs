@@ -43,7 +43,113 @@ namespace AlicaSystem.Datos
             }
             return lista;
         }
+        // Métodos nuevos para agregar libros en administrador
 
+        public List<Libro> ListarLibrosAdmin()
+        {
+            var lista = new List<Libro>();
+            using SqlConnection cn = conexionBD.ObtenerConexion();
+            cn.Open();
+            using SqlCommand cmd = new SqlCommand("sp_ListarLibrosAdmin", cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+
+            using SqlDataReader dr = cmd.ExecuteReader();
+            while (dr.Read())
+            {
+                lista.Add(new Libro
+                {
+                    IdLibro = Convert.ToInt32(dr["id_libro"]),
+                    Titulo = dr["titulo"].ToString()!,
+                    Isbn = dr["isbn"] == DBNull.Value ? null : dr["isbn"].ToString(),
+                    CodigoInterno = dr["codigo_interno"].ToString()!,
+                    IdCategoria = Convert.ToInt32(dr["id_categoria"]),
+                    Categoria = dr["categoria"].ToString()!,
+                    IdEstadoLibro = Convert.ToInt32(dr["id_estado_libro"]),
+                    EstadoLibro = dr["estado_libro"].ToString()!,
+                    CantidadDisponible = dr["cantidad_disponible"] == DBNull.Value ? 0 : Convert.ToInt32(dr["cantidad_disponible"]),
+                    CantidadTotal = dr["cantidad_total"] == DBNull.Value ? 0 : Convert.ToInt32(dr["cantidad_total"]),
+                    Ubicacion = dr["ubicacion"] == DBNull.Value ? null : dr["ubicacion"].ToString(),
+                    Autores = dr["lista_autores"] == DBNull.Value ? null : dr["lista_autores"].ToString()
+                });
+            }
+            return lista;
+        }
+
+        public int InsertarLibro(string titulo, string? isbn, string codigoInterno, int idCategoria, int idEstadoLibro, int cantidadTotal, string? ubicacion)
+        {
+            using SqlConnection cn = conexionBD.ObtenerConexion();
+            cn.Open();
+            using SqlCommand cmd = new SqlCommand("sp_InsertarLibro", cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@Titulo", titulo);
+            cmd.Parameters.AddWithValue("@Isbn", (object?)isbn ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@CodigoInterno", codigoInterno);
+            cmd.Parameters.AddWithValue("@IdCategoria", idCategoria);
+            cmd.Parameters.AddWithValue("@IdEstadoLibro", idEstadoLibro);
+            cmd.Parameters.AddWithValue("@CantidadTotal", cantidadTotal);
+            cmd.Parameters.AddWithValue("@Ubicacion", (object?)ubicacion ?? DBNull.Value);
+
+            return Convert.ToInt32(cmd.ExecuteScalar());
+        }
+
+        public void AsociarAutorLibro(int idLibro, int idAutor)
+        {
+            using SqlConnection cn = conexionBD.ObtenerConexion();
+            cn.Open();
+            using SqlCommand cmd = new SqlCommand("sp_AsociarAutorLibro", cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@IdLibro", idLibro);
+            cmd.Parameters.AddWithValue("@IdAutor", idAutor);
+            cmd.ExecuteNonQuery();
+        }
+
+        public void QuitarAutorLibro(int idLibro, int idAutor)
+        {
+            using SqlConnection cn = conexionBD.ObtenerConexion();
+            cn.Open();
+            using SqlCommand cmd = new SqlCommand("sp_QuitarAutorLibro", cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@IdLibro", idLibro);
+            cmd.Parameters.AddWithValue("@IdAutor", idAutor);
+            cmd.ExecuteNonQuery();
+        }
+
+        public void ActualizarLibro(int idLibro, string titulo, string? isbn, string codigoInterno, int idCategoria, int idEstadoLibro, int cantidadTotal, string? ubicacion)
+        {
+            using SqlConnection cn = conexionBD.ObtenerConexion();
+            cn.Open();
+            using SqlCommand cmd = new SqlCommand("sp_ActualizarLibro", cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@IdLibro", idLibro);
+            cmd.Parameters.AddWithValue("@Titulo", titulo);
+            cmd.Parameters.AddWithValue("@Isbn", (object?)isbn ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@CodigoInterno", codigoInterno);
+            cmd.Parameters.AddWithValue("@IdCategoria", idCategoria);
+            cmd.Parameters.AddWithValue("@IdEstadoLibro", idEstadoLibro);
+            cmd.Parameters.AddWithValue("@CantidadTotal", cantidadTotal);
+            cmd.Parameters.AddWithValue("@Ubicacion", (object?)ubicacion ?? DBNull.Value);
+            cmd.ExecuteNonQuery();
+        }
+
+        public bool EliminarLibro(int idLibro, out string? error)
+        {
+            error = null;
+            try
+            {
+                using SqlConnection cn = conexionBD.ObtenerConexion();
+                cn.Open();
+                using SqlCommand cmd = new SqlCommand("sp_EliminarLibro", cn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@IdLibro", idLibro);
+                cmd.ExecuteNonQuery();
+                return true;
+            }
+            catch (SqlException ex)
+            {
+                error = ex.Message;
+                return false;
+            }
+        }
         public Libro? ObtenerLibroPorId(int idLibro)
         {
             using SqlConnection cn = conexionBD.ObtenerConexion();
