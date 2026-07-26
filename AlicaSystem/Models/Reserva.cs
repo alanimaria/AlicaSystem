@@ -10,5 +10,6 @@
         public string Libro { get; set; } = string.Empty;
         public DateTime FechaReserva { get; set; }
         public DateTime FechaExpiracion { get; set; }
+        public string Estado { get; set; } = string.Empty;
     }
 }

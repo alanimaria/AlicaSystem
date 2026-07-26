@@ -36,24 +36,35 @@
                             <th>Libro</th>
                             <th>Reservado</th>
                             <th>Expira</th>
+                            <th>Estado</th>
                             <th class="hide-mobile">Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="tablaReservas">
                         @if (Model.Reservas.Count == 0)
                         {
-                            <tr><td colspan="5">No hay reservas pendientes ahora mismo.</td></tr>
+                            <tr><td colspan="6">No hay reservas pendientes ahora mismo.</td></tr>
                         }
                         @foreach (var r in Model.Reservas)
                         {
-                            <tr id="fila-@r.IdReserva">
+                            <tr id="fila-@r.IdReserva" style="@(r.Estado.Equals("EXPIRADA", StringComparison.OrdinalIgnoreCase) ? "opacity:.6;" : "")">
                                 <td>@r.Usuario</td>
                                 <td>@r.Libro</td>
                                 <td>@r.FechaReserva.ToString("dd MMM, HH:mm")</td>
-                                <td>@r.FechaExpiracion.ToString("dd MMM, HH:mm")</td>
+                                <td>@(r.Estado.Equals("EXPIRADA", StringComparison.OrdinalIgnoreCase) ? "-" : r.FechaExpiracion.ToString("dd MMM, HH:mm"))</td>
+                                <td><span class="stamp @(r.Estado.Equals("EXPIRADA", StringComparison.OrdinalIgnoreCase) ? "danger" : "warn")">@r.Estado</span></td>
                                 <td class="hide-mobile">
-                                    <button type="button" class="btn btn-brass btn-sm" onclick="actualizarEstado(@r.IdReserva, 'Cumplida')">Marcar entregado</button>
-                                    <button type="button" class="btn btn-danger btn-sm" onclick="actualizarEstado(@r.IdReserva, 'Cancelada')">Cancelar</button>
+                                    @if (r.Estado.Equals("PENDIENTE", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <div style="display:flex; flex-direction:column; gap:6px;">
+                                            <button type="button" class="btn btn-brass btn-sm" onclick="actualizarEstado(@r.IdReserva, 'Cumplida')">Marcar entregado</button>
+                                            <button type="button" class="btn btn-danger btn-sm" onclick="actualizarEstado(@r.IdReserva, 'CANCELADA')">Cancelar</button>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <text>-</text>
+                                    }
                                 </td>
                             </tr>
                         }

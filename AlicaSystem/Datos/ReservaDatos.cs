@@ -27,9 +27,11 @@ namespace AlicaSystem.Datos
             return Convert.ToInt32(cmd.ExecuteScalar());
         }
 
-        // Trae la lista completa de reservas pendientes, con los
-        // datos de usuario y libro ya resueltos, para mostrar en
-        // la pantalla "Reservas pendientes" del bibliotecario
+        // Trae la lista de reservas pendientes + expiradas recientes (ultimas 24h),
+        // con los datos de usuario y libro ya resueltos, para mostrar en
+        // la pantalla "Reservas pendientes" del bibliotecario.
+        // El SP tambien auto-expira (y restaura inventario) las reservas vencidas
+        // cada vez que se llama, ya que no tenemos SQL Agent Job en Azure.
         public List<Reserva> ListarReservasPendientes()
         {
             var lista = new List<Reserva>();
@@ -49,17 +51,20 @@ namespace AlicaSystem.Datos
                     Usuario = dr["Usuario"].ToString()!,
                     Libro = dr["Libro"].ToString()!,
                     FechaReserva = Convert.ToDateTime(dr["fecha_reserva"]),
-                    FechaExpiracion = Convert.ToDateTime(dr["fecha_expiracion"])
+                    FechaExpiracion = Convert.ToDateTime(dr["fecha_expiracion"]),
+                    Estado = dr["Estado"].ToString()!
                 });
             }
 
             return lista;
         }
 
-        // Cambia el estado de una reserva (a "Cumplida" o "Cancelada").
+        // Cambia el estado de una reserva (a "COMPLETADA" o "CANCELADA").
+        // idEmpleado es obligatorio cuando nuevoEstado es "COMPLETADA", porque
+        // el SP crea un prestamo real y necesita saber quien lo registro.
         // Devuelve true si se logro actualizar, false si no
         // (por ejemplo, si la reserva ya no estaba pendiente)
-        public bool ActualizarEstadoReserva(int idReserva, string nuevoEstado)
+        public bool ActualizarEstadoReserva(int idReserva, string nuevoEstado, int? idEmpleado)
         {
             using SqlConnection cn = conexionBD.ObtenerConexion();
             cn.Open();
@@ -68,6 +73,7 @@ namespace AlicaSystem.Datos
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("@IdReserva", idReserva);
             cmd.Parameters.AddWithValue("@NuevoEstado", nuevoEstado);
+            cmd.Parameters.AddWithValue("@IdEmpleado", (object?)idEmpleado ?? DBNull.Value);
 
             int filasAfectadas = Convert.ToInt32(cmd.ExecuteScalar());
             return filasAfectadas > 0;

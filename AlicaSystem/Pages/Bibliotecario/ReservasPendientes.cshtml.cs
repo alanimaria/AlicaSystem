@@ -32,10 +32,12 @@ namespace AlicaSystem.Pages.Bibliotecario
         }
 
         // Se llama desde los botones "Marcar entregado" y "Cancelar".
-        // nuevoEstado llega como "Cumplida" o "Cancelada" desde el JS.
+        // nuevoEstado llega como "COMPLETADA" o "CANCELADA" desde el JS
+        // (deben coincidir exacto con los nombres del catalogo ESTADO_RESERVA).
         public IActionResult OnPostActualizarEstado(int idReserva, string nuevoEstado)
         {
-            bool exito = reservaDatos.ActualizarEstadoReserva(idReserva, nuevoEstado);
+            int? idEmpleado = HttpContext.Session.GetInt32("IdEmpleado");
+            bool exito = reservaDatos.ActualizarEstadoReserva(idReserva, nuevoEstado, idEmpleado);
             return new JsonResult(new { exito });
         }
     }
