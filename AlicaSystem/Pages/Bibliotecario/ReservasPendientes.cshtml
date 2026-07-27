@@ -1,0 +1,98 @@
+﻿@page
+@model AlicaSystem.Pages.Bibliotecario.ReservasPendientesModel
+@{
+    Layout = null;
+    ViewData["Activo"] = "ReservasPendientes";
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alica System - Reservas pendientes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="~/css/alica.css">
+</head>
+<body>
+    <div class="app">
+        <partial name="_SidebarBibliotecario" />
+
+        <main class="stage" style="padding:32px 40px;">
+            <div class="screen-title">
+                <span class="eyebrow">Bibliotecario · Consulta</span>
+                <h1>Reservas pendientes</h1>
+                <p>Reservas activas esperando ser recogidas por el usuario.</p>
+            </div>
+
+            @Html.AntiForgeryToken()
+
+            <div class="card pad-m">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Usuario</th>
+                            <th>Libro</th>
+                            <th>Reservado</th>
+                            <th>Expira</th>
+                            <th>Estado</th>
+                            <th class="hide-mobile">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaReservas">
+                        @if (Model.Reservas.Count == 0)
+                        {
+                            <tr><td colspan="6">No hay reservas pendientes ahora mismo.</td></tr>
+                        }
+                        @foreach (var r in Model.Reservas)
+                        {
+                            <tr id="fila-@r.IdReserva" style="@(r.Estado.Equals("EXPIRADA", StringComparison.OrdinalIgnoreCase) ? "opacity:.6;" : "")">
+                                <td>@r.Usuario</td>
+                                <td>@r.Libro</td>
+                                <td>@r.FechaReserva.ToString("dd MMM, HH:mm")</td>
+                                <td>@(r.Estado.Equals("EXPIRADA", StringComparison.OrdinalIgnoreCase) ? "-" : r.FechaExpiracion.ToString("dd MMM, HH:mm"))</td>
+                                <td><span class="stamp @(r.Estado.Equals("EXPIRADA", StringComparison.OrdinalIgnoreCase) ? "danger" : "warn")">@r.Estado</span></td>
+                                <td class="hide-mobile">
+                                    @if (r.Estado.Equals("PENDIENTE", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <div style="display:flex; flex-direction:column; gap:6px;">
+                                            <button type="button" class="btn btn-brass btn-sm" onclick="actualizarEstado(@r.IdReserva, 'Cumplida')">Marcar entregado</button>
+                                            <button type="button" class="btn btn-danger btn-sm" onclick="actualizarEstado(@r.IdReserva, 'CANCELADA')">Cancelar</button>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <text>-</text>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script>
+            async function actualizarEstado(idReserva, nuevoEstado) {
+                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+                const body = new URLSearchParams();
+                body.append('idReserva', idReserva);
+                body.append('nuevoEstado', nuevoEstado);
+                body.append('__RequestVerificationToken', token);
+
+                const resp = await fetch('?handler=ActualizarEstado', { method: 'POST', body: body });
+                const data = await resp.json();
+
+                if (data.exito) {
+                    // Quitamos la fila de la tabla, ya no esta pendiente
+                    document.getElementById('fila-' + idReserva).remove();
+                } else {
+                    alert('No se pudo actualizar la reserva. Puede que ya no este pendiente.');
+                }
+            }
+    </script>
+</body>
+</html>
