@@ -1,0 +1,117 @@
+﻿@page
+@model AlicaSystem.Pages.Lector.MisPrestamosModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Alica System - Mis préstamos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="~/css/alica.css">
+</head>
+<body>
+    <div class="app">
+        <partial name="_SidebarLector" view-data="ViewData" />
+        <main class="stage" style="padding:32px;">
+
+            <div class="screen-title">
+                <span class="eyebrow">Lector · Historial</span>
+                <h1>Mis préstamos</h1>
+                <p>Consulta tus préstamos activos, tu historial y tus multas.</p>
+            </div>
+
+            <div class="tab-strip">
+                <a class="btn-tab @(Model.Tab == "activos" ? "active" : "")" href="/Lector/MisPrestamos?tab=activos">Activos</a>
+                <a class="btn-tab @(Model.Tab == "historial" ? "active" : "")" href="/Lector/MisPrestamos?tab=historial">Historial</a>
+                <a class="btn-tab @(Model.Tab == "multas" ? "active" : "")" href="/Lector/MisPrestamos?tab=multas">Multas</a>
+            </div>
+
+            @if (TempData["Mensaje"] != null)
+            {
+                <div class="toast-note brass" style="margin-bottom:16px;">@TempData["Mensaje"]</div>
+            }
+
+            @if (Model.Tab != "multas")
+            {
+                @if (!Model.Prestamos.Any())
+                {
+                    <div class="empty-state">
+                        <h4>Sin préstamos</h4>
+                        <p>No hay préstamos para mostrar aquí.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="card pad-m">
+                        <table>
+                            <thead>
+                                <tr><th>Libro</th><th class="hide-mobile">Fecha préstamo</th><th>Devolución esperada</th><th>Estado</th><th class="hide-mobile">Acción</th></tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var p in Model.Prestamos)
+                                {
+                                    <tr>
+                                        <td><div><div class="who">@p.Titulo</div><div class="sub">@p.CodigoInterno</div></div></td>
+                                        <td class="hide-mobile">@p.FechaPrestamo.ToString("dd MMM yyyy")</td>
+                                        <td>@p.FechaDevEsperada.ToString("dd MMM yyyy")</td>
+                                        <td><span class="stamp @(p.Estado == "Vencido" ? "danger" : "ok")">@p.Estado</span></td>
+                                        <td class="hide-mobile">
+                                           @if (p.CantidadRenovaciones < 5)
+{
+    <form method="post" asp-page-handler="Renovar" style="display:inline;">
+        <input type="hidden" name="idPrestamo" value="@p.IdPrestamo" />
+        <button class="btn btn-ghost btn-sm" type="submit">Renovar (+7 días)</button>
+    </form>
+    <div style="font-size:10px; color:var(--ink-soft); margin-top:2px;">@p.CantidadRenovaciones/5 renovaciones</div>
+}
+else
+{
+    <span class="chip">Máximo de renovaciones alcanzado</span>
+}
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            }
+            else
+            {
+                @if (!Model.Multas.Any())
+                {
+                    <div class="empty-state">
+                        <h4>Sin multas</h4>
+                        <p>No tienes ninguna multa registrada.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="card pad-m">
+                        <table>
+                            <thead><tr><th>Libro</th><th>Monto</th><th>Generada</th><th>Estado</th></tr></thead>
+                            <tbody>
+                                @foreach (var m in Model.Multas)
+                                {
+                                    <tr>
+                                        <td>@m.Titulo<div class="sub">@m.Motivo</div></td>
+                                        <td>RD$ @m.Monto.ToString("N2")</td>
+                                        <td>@m.FechaGeneracion.ToString("dd MMM yyyy")</td>
+                                        <td><span class="stamp @(m.Estado == "Pagada" ? "ok" : "warn")">@m.Estado</span></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            }
+
+        </main>
+    </div>
+    <script src="~/js/site.js"></script>
+</body>
+</html>
