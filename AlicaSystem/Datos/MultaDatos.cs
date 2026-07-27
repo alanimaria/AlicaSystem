@@ -4,9 +4,9 @@ using AlicaSystem.Models;
 
 namespace AlicaSystem.Datos
 {
-    // Esta clase se encarga de todo lo relacionado a MULTAS que necesita
-    // el dashboard del bibliotecario
-
+    // Esta clase se encarga de todo lo relacionado a MULTAS, tanto para
+    // el Bibliotecario (Dashboard + pantalla "Multas") como para el
+    // Lector (Dashboard + "Mis multas").
     public class MultaDatos
     {
         private readonly ConexionBD conexionBD;
@@ -17,7 +17,6 @@ namespace AlicaSystem.Datos
         }
 
         // Devuelve cuantos usuarios tienen multas sin pagar todavia
-        // (fecha_pago = NULL significa que la multa sigue pendiente)
         public int ContarMultasPendientes()
         {
             using SqlConnection cn = conexionBD.ObtenerConexion();
@@ -28,6 +27,62 @@ namespace AlicaSystem.Datos
 
             return Convert.ToInt32(cmd.ExecuteScalar());
         }
+
+        // ---- Metodos para el Bibliotecario (pantalla "Multas") ----
+
+        // Trae TODAS las multas (Pendiente, Pagada, Perdonada) con el
+        // detalle del prestamo asociado, para la pantalla "Multas".
+        // El filtrado por pestana se hace en el frontend con JS.
+        public List<Multa> ListarMultas()
+        {
+            var lista = new List<Multa>();
+
+            using SqlConnection cn = conexionBD.ObtenerConexion();
+            cn.Open();
+
+            using SqlCommand cmd = new SqlCommand("sp_ListarMultas", cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+
+            using SqlDataReader dr = cmd.ExecuteReader();
+            while (dr.Read())
+            {
+                lista.Add(new Multa
+                {
+                    IdMulta = Convert.ToInt32(dr["id_multa"]),
+                    Usuario = dr["Usuario"].ToString()!,
+                    Matricula = dr["Matricula"].ToString()!,
+                    IdPrestamo = Convert.ToInt32(dr["id_prestamo"]),
+                    Libro = dr["Libro"].ToString()!,
+                    FechaEsperada = Convert.ToDateTime(dr["FechaEsperada"]),
+                    DiasAtraso = Convert.ToInt32(dr["DiasAtraso"]),
+                    Monto = Convert.ToDecimal(dr["monto"]),
+                    FechaGeneracion = Convert.ToDateTime(dr["fecha_generacion"]),
+                    FechaPago = dr["fecha_pago"] == DBNull.Value ? null : Convert.ToDateTime(dr["fecha_pago"]),
+                    Estado = dr["Estado"].ToString()!
+                });
+            }
+
+            return lista;
+        }
+
+        // Marca una multa como Pagada o Perdonada. Devuelve true si funciono.
+        // Solo se puede aplicar sobre una multa que este en estado Pendiente.
+        public bool ActualizarEstadoMulta(int idMulta, string estadoDestino)
+        {
+            using SqlConnection cn = conexionBD.ObtenerConexion();
+            cn.Open();
+
+            using SqlCommand cmd = new SqlCommand("sp_ActualizarEstadoMulta", cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@IdMulta", idMulta);
+            cmd.Parameters.AddWithValue("@EstadoDestino", estadoDestino);
+
+            int filasAfectadas = Convert.ToInt32(cmd.ExecuteScalar());
+            return filasAfectadas > 0;
+        }
+
+        // ---- Metodos para el Lector (Dashboard + "Mis multas") ----
+
         public (bool Exito, string Mensaje) RegistrarMultaPorEstadoLibro(int idPrestamo, int idEmpleado, decimal monto)
         {
             using SqlConnection cn = conexionBD.ObtenerConexion();

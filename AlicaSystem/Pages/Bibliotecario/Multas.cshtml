@@ -1,0 +1,244 @@
+﻿@page
+@model AlicaSystem.Pages.Bibliotecario.GestionarMultasModel
+@{
+    Layout = null;
+    ViewData["Activo"] = "Multas";
+}
+@functions {
+    string Iniciales(string nombre)
+    {
+        var partes = nombre.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (partes.Length == 0) return "";
+        if (partes.Length == 1) return partes[0].Substring(0, 1).ToUpper();
+        return (partes[0].Substring(0, 1) + partes[^1].Substring(0, 1)).ToUpper();
+    }
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alica System - Multas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="~/css/alica.css">
+</head>
+<body>
+    <div class="app">
+        <partial name="_SidebarBibliotecario" />
+
+        <main class="stage" style="padding:32px 40px;">
+            <div class="screen-title">
+                <span class="eyebrow">Bibliotecario · Gestión</span>
+                <h1>Multas</h1>
+                <p>Multas generadas por devolución tardía. Márcalas como pagadas o perdonadas.</p>
+            </div>
+
+            @Html.AntiForgeryToken()
+
+            <div class="grid-2" style="grid-template-columns:1.3fr .9fr; align-items:flex-start; gap:20px;">
+                <div class="card pad-m">
+                    <div class="tab-strip" id="tabStrip">
+                        <button class="active" data-tab="Pendiente">Pendientes (<span id="countPendiente">0</span>)</button>
+                        <button data-tab="Pagada">Pagadas (<span id="countPagada">0</span>)</button>
+                        <button data-tab="Perdonada">Perdonadas (<span id="countPerdonada">0</span>)</button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Usuario</th>
+                                <th class="hide-mobile">Préstamo</th>
+                                <th>Monto</th>
+                                <th class="hide-mobile">Generada</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaMultas">
+                            @if (Model.Multas.Count == 0)
+                            {
+                                <tr><td colspan="5" style="text-align:center; color:var(--ink-soft); padding:24px 0;">No hay multas registradas todavía.</td></tr>
+                            }
+                            @foreach (var m in Model.Multas)
+                            {
+                                <tr id="fila-@m.IdMulta" class="fila-multa" style="cursor:pointer;"
+                                    data-id="@m.IdMulta"
+                                    data-estado="@m.Estado"
+                                    data-usuario="@m.Usuario"
+                                    data-matricula="@m.Matricula"
+                                    data-libro="@m.Libro"
+                                    data-idprestamo="@m.IdPrestamo"
+                                    data-fechaesperada="@m.FechaEsperada.ToString("dd MMM yyyy")"
+                                    data-diasatraso="@m.DiasAtraso"
+                                    data-monto="@m.Monto.ToString("N2")"
+                                    data-generada="@m.FechaGeneracion.ToString("dd MMM yyyy")">
+                                    <td>
+                                        <div class="userline">
+                                            <div class="avatar">@Iniciales(m.Usuario)</div>
+                                            <div class="who">@m.Usuario</div>
+                                        </div>
+                                    </td>
+                                    <td class="hide-mobile">@m.Libro</td>
+                                    <td>RD$@m.Monto.ToString("N2")</td>
+                                    <td class="hide-mobile">@m.FechaGeneracion.ToString("dd MMM yyyy")</td>
+                                    <td>
+                                        @if (m.Estado == "Pendiente")
+                                        {
+                                            <span class="stamp danger">Pendiente</span>
+                                        }
+                                        else if (m.Estado == "Pagada")
+                                        {
+                                            <span class="stamp ok">Pagada</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="stamp warn">Perdonada</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card pad-l" id="panelDetalle">
+                    <h3 style="font-size:15px; margin-bottom:16px;">Detalle de la multa</h3>
+                    <p id="sinSeleccion" style="font-size:13px; color:var(--ink-soft);">Selecciona una multa de la lista para ver el detalle.</p>
+
+                    <div id="detalleContenido" style="display:none;">
+                        <div class="userline" style="margin-bottom:16px;">
+                            <div class="avatar" id="detAvatar"></div>
+                            <div>
+                                <div class="who" id="detUsuario"></div>
+                                <div class="sub" id="detMatricula"></div>
+                            </div>
+                        </div>
+                        <div style="font-family:var(--font-mono); font-size:11.5px; color:var(--ink-soft); line-height:1.9; margin-bottom:18px;">
+                            Préstamo: <span id="detLibro"></span><br>
+                            Fecha esperada: <span id="detFechaEsperada"></span><br>
+                            Días de atraso: <span id="detDiasAtraso"></span><br>
+                            Monto: RD$<span id="detMonto"></span>
+                        </div>
+                        <div class="divider"></div>
+                        <div class="field-group">
+                            <label class="field-label">Estado de la multa</label>
+                            <div><span class="stamp" id="detEstadoStamp"></span></div>
+                        </div>
+                        <div id="detAcciones">
+                            <button type="button" class="btn btn-primary btn-block" style="margin-bottom:10px;" id="btnPagada">Marcar como pagada</button>
+                            <button type="button" class="btn btn-ghost btn-block" id="btnPerdonar">Perdonar multa</button>
+                        </div>
+                        <p id="detResuelta" style="display:none; font-size:12px; color:var(--ink-soft); text-align:center;">Esta multa ya fue resuelta.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+            let idSeleccionado = null;
+
+            function estadoClase(estado) {
+                if (estado === 'Pendiente') return 'danger';
+                if (estado === 'Pagada') return 'ok';
+                return 'warn';
+            }
+
+            function actualizarContadores() {
+                const filas = document.querySelectorAll('.fila-multa');
+                const conteo = { Pendiente: 0, Pagada: 0, Perdonada: 0 };
+                filas.forEach(f => { conteo[f.dataset.estado] = (conteo[f.dataset.estado] || 0) + 1; });
+                document.getElementById('countPendiente').textContent = conteo.Pendiente;
+                document.getElementById('countPagada').textContent = conteo.Pagada;
+                document.getElementById('countPerdonada').textContent = conteo.Perdonada;
+            }
+
+            function filtrarTab(tab) {
+                document.querySelectorAll('.fila-multa').forEach(f => {
+                    f.style.display = (f.dataset.estado === tab) ? '' : 'none';
+                });
+            }
+
+            document.getElementById('tabStrip').addEventListener('click', (e) => {
+                const btn = e.target.closest('button[data-tab]');
+                if (!btn) return;
+                document.querySelectorAll('#tabStrip button').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                filtrarTab(btn.dataset.tab);
+            });
+
+            function mostrarDetalle(fila) {
+                idSeleccionado = fila.dataset.id;
+
+                document.querySelectorAll('.fila-multa').forEach(f => f.classList.remove('selected'));
+                fila.classList.add('selected');
+
+                document.getElementById('sinSeleccion').style.display = 'none';
+                document.getElementById('detalleContenido').style.display = 'block';
+
+                document.getElementById('detAvatar').textContent = fila.querySelector('.avatar').textContent;
+                document.getElementById('detUsuario').textContent = fila.dataset.usuario;
+                document.getElementById('detMatricula').textContent = fila.dataset.matricula;
+                document.getElementById('detLibro').textContent = fila.dataset.libro;
+                document.getElementById('detFechaEsperada').textContent = fila.dataset.fechaesperada;
+                document.getElementById('detDiasAtraso').textContent = fila.dataset.diasatraso;
+                document.getElementById('detMonto').textContent = fila.dataset.monto;
+
+                const estado = fila.dataset.estado;
+                const stamp = document.getElementById('detEstadoStamp');
+                stamp.textContent = estado;
+                stamp.className = 'stamp ' + estadoClase(estado);
+
+                const acciones = document.getElementById('detAcciones');
+                const resuelta = document.getElementById('detResuelta');
+                if (estado === 'Pendiente') {
+                    acciones.style.display = 'block';
+                    resuelta.style.display = 'none';
+                } else {
+                    acciones.style.display = 'none';
+                    resuelta.style.display = 'block';
+                }
+            }
+
+            document.getElementById('tablaMultas').addEventListener('click', (e) => {
+                const fila = e.target.closest('.fila-multa');
+                if (fila) mostrarDetalle(fila);
+            });
+
+            async function cambiarEstado(estadoDestino) {
+                if (!idSeleccionado) return;
+
+                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                const body = new URLSearchParams();
+                body.append('idMulta', idSeleccionado);
+                body.append('estadoDestino', estadoDestino);
+                body.append('__RequestVerificationToken', token);
+
+                const resp = await fetch('?handler=ActualizarEstado', { method: 'POST', body: body });
+                const data = await resp.json();
+
+                if (data.exito) {
+                    const fila = document.getElementById('fila-' + idSeleccionado);
+                    fila.dataset.estado = estadoDestino;
+
+                    const celdaEstado = fila.querySelectorAll('td')[4];
+                    celdaEstado.innerHTML = '<span class="stamp ' + estadoClase(estadoDestino) + '">' + estadoDestino + '</span>';
+
+                    actualizarContadores();
+                    mostrarDetalle(fila);
+
+                    const tabActiva = document.querySelector('#tabStrip button.active').dataset.tab;
+                    filtrarTab(tabActiva);
+                } else {
+                    alert(data.mensaje || 'No se pudo actualizar la multa.');
+                }
+            }
+
+            document.getElementById('btnPagada').addEventListener('click', () => cambiarEstado('Pagada'));
+            document.getElementById('btnPerdonar').addEventListener('click', () => cambiarEstado('Perdonada'));
+
+            actualizarContadores();
+            filtrarTab('Pendiente');
+    </script>
+</body>
+</html>
