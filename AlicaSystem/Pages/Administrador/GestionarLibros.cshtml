@@ -1,0 +1,152 @@
+﻿@page
+@model AlicaSystem.Pages.Administrador.GestionarLibrosModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Alica System - Libros</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="~/css/alica.css">
+</head>
+<body>
+    <div class="app">
+        <partial name="_SidebarAdministrador" view-data="ViewData" />
+        <main class="stage" style="padding:32px;">
+
+            <div class="screen-title">
+                <span class="eyebrow">Administrador · Catálogo</span>
+                <div><h1>Libros</h1><p>Gestiona el catálogo de libros del sistema.</p></div>
+            </div>
+
+            @if (TempData["Mensaje"] != null)
+            {
+                <p>@TempData["Mensaje"]</p>
+            }
+            <form method="get" class="search-bar" style="margin-bottom:16px;">
+                <input class="field" type="text" name="buscar" value="@Model.Buscar" placeholder="Buscar por título o código...">
+                <button class="btn btn-ghost" type="submit"><i class="bi bi-search"></i></button>
+            </form>
+
+            <div class="grid-2" style="grid-template-columns:1.3fr .9fr; align-items:flex-start;">
+                <div class="card pad-m">
+                    <table>
+                        <thead><tr><th>Título</th><th class="hide-mobile">Categoría</th><th class="hide-mobile">Disponibilidad</th><th>Acciones</th></tr></thead>
+                        <tbody>
+                            @foreach (var l in Model.Libros)
+                            {
+                                <tr>
+                                    <td>@l.Titulo<div class="sub">@l.CodigoInterno · @l.Autores</div></td>
+                                    <td class="hide-mobile">@l.Categoria</td>
+                                    <td class="hide-mobile">@l.CantidadDisponible / @l.CantidadTotal</td>
+                                    <td>
+                                        <a class="btn btn-ghost btn-sm" href="/Administrador/GestionarLibros?id=@l.IdLibro">Editar</a>
+                                        <form method="post" asp-page-handler="Eliminar" class="confirm-delete" style="display:inline;">
+                                            <input type="hidden" name="id" value="@l.IdLibro" />
+                                            <button type="submit" class="btn btn-danger btn-sm">Desactivar</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card pad-l">
+                    <h3 style="font-size:15px; margin-bottom:16px;">Registrar / editar libro</h3>
+                    <form method="post" id="formLibro">
+                        <input type="hidden" asp-for="IdLibro" />
+                        <input type="hidden" id="idsAutores" name="idsAutores" value="" />
+
+                        <div class="field-group"><label class="field-label">Título <span class="req">*</span></label><input class="field" asp-for="Titulo" placeholder="Título del libro"></div>
+                        <div class="field-group"><label class="field-label">ISBN</label><input class="field" asp-for="Isbn" placeholder="Opcional"></div>
+                        <div class="field-group"><label class="field-label">Código interno <span class="req">*</span></label><input class="field" asp-for="CodigoInterno" placeholder="Ej. COD-0231"></div>
+
+                        <div class="field-group">
+                            <label class="field-label">Categoría <span class="req">*</span></label>
+                            <select class="field" asp-for="IdCategoria">
+                                @foreach (var c in Model.Categorias)
+                                {
+                                    <option value="@c.IdCategoria">@c.Nombre</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="form-grid-2">
+                            <div class="field-group"><label class="field-label">Cantidad total <span class="req">*</span></label><input class="field" type="number" min="1" asp-for="CantidadTotal"></div>
+                            <div class="field-group"><label class="field-label">Ubicación</label><input class="field" asp-for="Ubicacion" placeholder="Ej. Estante A-3"></div>
+                        </div>
+
+                        <div class="field-group">
+                            <label class="field-label">Autores</label>
+                            <input class="field" id="buscadorAutores" placeholder="Escribe para buscar un autor...">
+                            <div id="resultadosAutores" class="field-help"></div>
+                            <div id="chipsAutores" style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;"></div>
+                        </div>
+                        @if (Model.IdLibro != 0)
+                        {
+                            <a class="btn btn-ghost btn-block" href="/Administrador/GestionarLibros" style="margin-bottom:10px;">Cancelar edición</a>
+                        }
+                        <button class="btn btn-primary btn-block" type="submit">Guardar libro</button>
+                    </form>
+                </div>
+            </div>
+
+        </main>
+    </div>
+    <script src="~/js/site.js"></script>
+    <script>
+        let autoresSeleccionados = [];
+
+        document.getElementById('buscadorAutores').addEventListener('input', async function () {
+        const texto = this.value.trim();
+        const contenedor = document.getElementById('resultadosAutores');
+
+        if (texto.length < 2) { contenedor.innerHTML = ''; return; }
+
+        const resp = await fetch('?handler=BuscarAutores&texto=' + encodeURIComponent(texto));
+        const autores = await resp.json();
+
+        contenedor.innerHTML = '';
+        autores.forEach(a => {
+        const item = document.createElement('div');
+        item.textContent = a.nombre;
+        item.style.cursor = 'pointer';
+        item.style.padding = '4px 0';
+        item.addEventListener('click', () => agregarAutor(a));
+        contenedor.appendChild(item);
+        });
+        });
+
+        function agregarAutor(autor) {
+        if (autoresSeleccionados.some(a => a.id === autor.id)) return;
+        autoresSeleccionados.push(autor);
+        document.getElementById('buscadorAutores').value = '';
+        document.getElementById('resultadosAutores').innerHTML = '';
+        renderChips();
+        }
+
+        function quitarAutor(id) {
+        autoresSeleccionados = autoresSeleccionados.filter(a => a.id !== id);
+        renderChips();
+        }
+
+        function renderChips() {
+        const contenedor = document.getElementById('chipsAutores');
+        contenedor.innerHTML = '';
+        autoresSeleccionados.forEach(a => {
+        const chip = document.createElement('span');
+        chip.className = 'chip';
+        chip.innerHTML = a.nombre + ' <i class="bi bi-x" style="cursor:pointer; margin-left:4px;"></i>';
+        chip.querySelector('i').addEventListener('click', () => quitarAutor(a.id));
+        contenedor.appendChild(chip);
+        });
+        document.getElementById('idsAutores').value = autoresSeleccionados.map(a => a.id).join(',');
+        }
+    </script>
+</body>
+</html>
