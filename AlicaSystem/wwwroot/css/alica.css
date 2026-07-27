@@ -450,6 +450,105 @@ tbody tr:hover{background:var(--paper-dim);}
         color: var(--ink);
     }
 
-        .dropdown-menu button:hover, .dropdown-menu .dd-item:hover {
+    .dropdown-menu button:hover, .dropdown-menu .dd-item:hover {
             background: var(--navy-tint);
+ }
+
+.dd-item {
+    text-decoration: none;
+}
+.tab-strip {
+    display: flex;
+    gap: 2px;
+    border-bottom: 1.5px solid var(--line);
+    margin-bottom: 20px;
+}
+
+    .tab-strip button,
+    .tab-strip .btn-tab {
+        background: transparent;
+        border: none;
+        padding: 10px 4px;
+        margin-right: 22px;
+        font-size: 13.5px;
+        color: var(--ink-soft);
+        border-bottom: 2px solid transparent;
+        font-weight: 500;
+        display: inline-block;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+        .tab-strip button.active,
+        .tab-strip .btn-tab.active {
+            color: var(--navy-deep);
+            border-color: var(--clay);
+            font-weight: 600;
         }
+.link-plain {
+    text-decoration: none;
+}
+
+    .link-plain:hover {
+        text-decoration: underline;
+    }
+a {
+    text-decoration: none;
+    color: inherit;
+}
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(20,30,35,.45);
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+    .modal-overlay.show {
+        display: flex;
+    }
+
+.modal-card {
+    background: var(--paper);
+    border-radius: 10px;
+    padding: 22px;
+    max-width: 360px;
+    box-shadow: 0 12px 30px rgba(0,0,0,.25);
+}
+
+    .modal-card p {
+        font-size: 13.5px;
+        color: var(--ink);
+        margin-bottom: 18px;
+    }
+
+.modal-acciones {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+.btn-tab {
+    background: transparent;
+    border: none;
+    padding: 10px 4px;
+    margin-right: 22px;
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    border-bottom: 2px solid transparent;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+    .btn-tab.active {
+        color: var(--navy-deep);
+        border-color: var(--clay);
+        font-weight: 600;
+    }
+/* Oculta el ícono nativo de "mostrar contraseña" de Edge/IE,
+   para que no se duplique con el ícono custom del toggle-password */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+    display: none;
+}
