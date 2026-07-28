@@ -76,6 +76,7 @@ namespace AlicaSystem.Datos
                     Email = dr["email"].ToString()!,
                     Telefono = dr["telefono"] == DBNull.Value ? null : dr["telefono"].ToString(),
                     FechaRegistro = Convert.ToDateTime(dr["fecha_registro"]),
+                    Password = dr["password"].ToString()!,
                     Estado = Convert.ToBoolean(dr["estado"])
                 });
             }
@@ -106,6 +107,31 @@ namespace AlicaSystem.Datos
             cmd.Parameters.AddWithValue("@IdUsuario", idUsuario);
             cmd.Parameters.AddWithValue("@Estado", estado);
             cmd.ExecuteNonQuery();
+        }
+        public bool RegistrarUsuarioAdmin(string matricula, string nombre, string apellido, string email, string? telefono, out string? error)
+        {
+            error = null;
+            try
+            {
+                using SqlConnection cn = conexionBD.ObtenerConexion();
+                cn.Open();
+                using SqlCommand cmd = new SqlCommand("sp_RegistrarUsuarioAdmin", cn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Matricula", matricula);
+                cmd.Parameters.AddWithValue("@Nombre", nombre);
+                cmd.Parameters.AddWithValue("@Apellido", apellido);
+                cmd.Parameters.AddWithValue("@Email", email);
+                cmd.Parameters.AddWithValue("@Telefono", (object?)telefono ?? DBNull.Value);
+                cmd.ExecuteNonQuery();
+                return true;
+            }
+            catch (SqlException ex)
+            {
+                error = ex.Message.Contains("UNIQUE")
+                    ? "Ya existe un usuario con ese email o matrícula."
+                    : ex.Message;
+                return false;
+            }
         }
 
         // Busca un lector por su matricula, solo entre usuarios activos.
