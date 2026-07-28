@@ -1,9 +1,8 @@
-﻿// // Alterna mostrar/ocultar cualquier campo de contraseña que tenga
+﻿// Alterna mostrar/ocultar cualquier campo de contraseña que tenga
 // un botón con la clase "toggle-password" al lado.
 // Funciona para todos los campos de contraseña del sitio, no solo login.
 document.querySelectorAll('.toggle-password').forEach(function (boton) {
     boton.addEventListener('click', function () {
-        // data-target apunta al id del input que este botón controla
         const idCampo = boton.getAttribute('data-target');
         const campo = document.getElementById(idCampo);
         const icono = boton.querySelector('i');
@@ -75,8 +74,8 @@ document.addEventListener('click', function (e) {
         document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('show'));
     }
 });
+
 // Boton onpost para renombrar: abre un prompt para ingresar el nuevo nombre y luego envía el form correspondiente
-// em el formulario de mi lista
 document.querySelectorAll('.rename-toggle').forEach(function (boton) {
     boton.addEventListener('click', function (e) {
         e.stopPropagation();
@@ -92,6 +91,7 @@ document.querySelectorAll('[data-maxlen]').forEach(function (input) {
         contador.textContent = input.value.length + '/25';
     });
 });
+
 // ---- Registrar devolución (Bibliotecario) ----
 
 async function buscarLector() {
@@ -160,3 +160,69 @@ async function registrarDevolucion(idPrestamo) {
         buscarLector();
     }
 }
+
+// Autogenera el email institucional a partir de la matrícula
+// (usado en Gestión de Usuarios del Administrador)
+const campoMatricula = document.querySelector('input[name="Matricula"]');
+if (campoMatricula) {
+    const vistaEmail = document.getElementById('emailPreview');
+    const vistaPassword = document.getElementById('passwordPreview');
+    campoMatricula.addEventListener('input', function () {
+        vistaEmail.textContent = this.value ? this.value + '@alica.edu.do' : 'Se genera al escribir la matrícula';
+        vistaPassword.textContent = this.value || 'Se genera al escribir la matrícula';
+    });
+}
+
+// Autoformatea el teléfono a (809) 555-0123 mientras el usuario escribe solo números
+const campoTelefono = document.querySelector('input[name="Telefono"]');
+if (campoTelefono) {
+    campoTelefono.addEventListener('input', function () {
+        let numeros = this.value.replace(/\D/g, '').slice(0, 10);
+        let formateado = numeros;
+        if (numeros.length > 6) {
+            formateado = `(${numeros.slice(0, 3)}) ${numeros.slice(3, 6)}-${numeros.slice(6)}`;
+        } else if (numeros.length > 3) {
+            formateado = `(${numeros.slice(0, 3)}) ${numeros.slice(3)}`;
+        } else if (numeros.length > 0) {
+            formateado = `(${numeros}`;
+        }
+        this.value = formateado;
+    });
+}
+
+// Muestra el detalle completo de un usuario (Gestión de Usuarios del Administrador)
+function crearModalDetalleUsuario() {
+    if (document.getElementById('modal-detalle-usuario')) return;
+    const modal = document.createElement('div');
+    modal.id = 'modal-detalle-usuario';
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+        <div class="modal-card" style="max-width:340px;">
+            <h3 style="font-size:15px; margin-bottom:12px;">Detalles del usuario</h3>
+            <div id="detalle-usuario-contenido" style="font-size:13px; line-height:1.9;"></div>
+            <div class="modal-acciones" style="margin-top:16px;">
+                <button type="button" class="btn btn-ghost" id="cerrar-detalle-usuario">Cerrar</button>
+            </div>
+        </div>`;
+    document.body.appendChild(modal);
+    document.getElementById('cerrar-detalle-usuario').addEventListener('click', function () {
+        modal.classList.remove('show');
+    });
+}
+
+document.querySelectorAll('.ver-usuario').forEach(function (boton) {
+    boton.addEventListener('click', function () {
+        crearModalDetalleUsuario();
+        const d = boton.dataset;
+        document.getElementById('detalle-usuario-contenido').innerHTML = `
+            <div><strong>Nombre:</strong> ${d.nombre} ${d.apellido}</div>
+            <div><strong>Matrícula:</strong> ${d.matricula}</div>
+            <div><strong>Email:</strong> ${d.email}</div>
+            <div><strong>Teléfono:</strong> ${d.telefono}</div>
+            <div><strong>Contraseña:</strong> ${d.password}</div>
+            <div><strong>Registrado:</strong> ${d.fecha}</div>
+            <div><strong>Estado:</strong> ${d.estado}</div>
+        `;
+        document.getElementById('modal-detalle-usuario').classList.add('show');
+    });
+});

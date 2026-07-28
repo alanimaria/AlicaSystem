@@ -1,0 +1,104 @@
+﻿@page
+@model AlicaSystem.Pages.Administrador.GestionarPersonasModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Alica System - Usuarios</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="~/css/alica.css">
+</head>
+<body>
+    <div class="app">
+        <partial name="_SidebarAdministrador" view-data="ViewData" />
+        <main class="stage" style="padding:32px;">
+
+            <div class="screen-title">
+                <span class="eyebrow">Administrador · Personas</span>
+                <div><h1>Usuarios</h1><p>Gestiona las cuentas de los lectores del sistema.</p></div>
+            </div>
+
+            @if (TempData["Mensaje"] != null)
+            {
+                <p>@TempData["Mensaje"]</p>
+            }
+
+            <form method="get" class="search-bar" style="margin-bottom:16px;">
+                <input class="field" type="text" name="buscar" value="@Model.Buscar" placeholder="Buscar por nombre o matrícula...">
+                <button class="btn btn-ghost" type="submit"><i class="bi bi-search"></i></button>
+            </form>
+
+            <div class="grid-2" style="grid-template-columns:1.3fr .9fr; align-items:flex-start;">
+                <div class="card pad-m">
+                    <table>
+                        <thead><tr><th>Usuario</th><th class="hide-mobile">Email</th><th>Estado</th><th>Acciones</th></tr></thead>
+                        <tbody>
+                            @foreach (var u in Model.Usuarios)
+                            {
+                                <tr>
+                                    <td>@u.Nombre @u.Apellido<div class="sub">@u.Matricula</div></td>
+                                    <td class="hide-mobile">@u.Email</td>
+                                    <td><span class="stamp @(u.Estado ? "ok" : "danger")">@(u.Estado ? "Activo" : "Inactivo")</span></td>
+                                    <td>
+                                        <button type="button" class="btn btn-ghost btn-sm ver-usuario"
+                                                data-nombre="@u.Nombre" data-apellido="@u.Apellido" data-matricula="@u.Matricula"
+                                                data-email="@u.Email" data-telefono="@(u.Telefono ?? "-")" data-password="@u.Password"
+                                                data-fecha="@u.FechaRegistro.ToString("dd MMM yyyy")" data-estado="@(u.Estado ? "Activo" : "Inactivo")">
+                                            <i class="bi bi-person-lines-fill"></i>
+                                        </button>
+                                        <a class="btn btn-ghost btn-sm" href="/Administrador/GestionarPersonas?id=@u.IdUsuario"><i class="bi bi-pencil"></i></a>
+                                        <form method="post" asp-page-handler="CambiarEstado" asp-route-id="@u.IdUsuario" asp-route-nuevoEstado="@(!u.Estado)" style="display:inline;">
+                                            <button type="submit" class="btn @(u.Estado ? "btn-danger" : "btn-ghost") btn-sm" title="@(u.Estado ? "Desactivar" : "Activar")">
+                                                @(u.Estado ? "Desactivar" : "Activar")
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <form method="post">
+                    <input type="hidden" asp-for="IdUsuario" />
+
+                    <div class="field-group">
+                        <label class="field-label">Matrícula <span class="req">*</span></label>
+                        <input class="field" asp-for="Matricula" pattern="\d{4}-\d{4}" title="Formato: 4 números, guion, 4 números (ej. 2024-0122)" placeholder="2024-0000">
+                    </div>
+
+                    <div class="field-group"><label class="field-label">Nombre <span class="req">*</span></label><input class="field" asp-for="Nombre"></div>
+                    <div class="field-group"><label class="field-label">Apellido <span class="req">*</span></label><input class="field" asp-for="Apellido"></div>
+
+                    <div class="field-group">
+                        <label class="field-label">Email (autogenerado)</label>
+                        <div class="field-help" id="emailPreview">@(!string.IsNullOrEmpty(Model.Matricula) ? Model.Matricula + "@alica.edu.do" : "Se genera al escribir la matrícula")</div>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label">Contraseña predeterminada (autogenerada)</label>
+                        <div class="field-help" id="passwordPreview">Se genera al escribir la matrícula</div>
+                    </div>
+
+                    <div class="field-group">
+                        <label class="field-label">Teléfono</label>
+                        <input class="field" asp-for="Telefono" pattern="\(\d{3}\) \d{3}-\d{4}" title="Formato: (123) 456-7890" placeholder="(809) 555-0123">
+                    </div>
+
+                    <button class="btn btn-primary btn-block" type="submit">@(Model.IdUsuario == 0 ? "Registrar usuario" : "Guardar cambios")</button>
+                    @if (Model.IdUsuario != 0)
+                    {
+                        <a class="btn btn-ghost btn-block" href="/Administrador/GestionarPersonas" style="margin-top:8px;">Cancelar edición</a>
+                    }
+                </form>
+            </div>
+
+        </main>
+    </div>
+    <script src="~/js/site.js"></script>
+</body>
+</html>
