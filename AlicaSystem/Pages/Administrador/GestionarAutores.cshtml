@@ -1,0 +1,69 @@
+﻿@page
+@model AlicaSystem.Pages.Administrador.GestionarAutoresModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Alica System - Autores</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="~/css/alica.css">
+</head>
+<body>
+    <div class="app">
+        <partial name="_SidebarAdministrador" view-data="ViewData" />
+        <main class="stage" style="padding:32px;">
+
+            <div class="screen-title">
+                <span class="eyebrow">Administrador · Catálogo</span>
+                <div><h1>Autores</h1><p>Gestiona los autores registrados en el sistema.</p></div>
+            </div>
+
+            @if (TempData["Mensaje"] != null)
+            {
+                <p>@TempData["Mensaje"]</p>
+            }
+
+            <div class="grid-2" style="grid-template-columns:1.3fr .9fr; align-items:flex-start;">
+                <div class="card pad-m">
+                    <table>
+                        <thead><tr><th>Nombre completo</th><th class="hide-mobile">País de origen</th><th>Acciones</th></tr></thead>
+                        <tbody>
+                            @foreach (var a in Model.Autores)
+                            {
+                                <tr>
+                                    <td>@a.NombreCompleto</td>
+                                    <td class="hide-mobile">@a.PaisOrigen</td>
+                                    <td>
+                                        <a class="btn btn-ghost btn-sm" href="/Administrador/GestionarAutores?id=@a.IdAutor">Editar</a>
+                                        <form method="post" asp-page-handler="Eliminar" class="confirm-delete" style="display:inline;">
+                                            <input type="hidden" name="id" value="@a.IdAutor" />
+                                            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card pad-l">
+                    <h3 style="font-size:15px; margin-bottom:16px;">Registrar / editar autor</h3>
+                    <form method="post">
+                        <input type="hidden" asp-for="IdAutor" />
+                        <div class="field-group"><label class="field-label">Nombre completo <span class="req">*</span></label><input class="field" asp-for="NombreCompleto" placeholder="Ej. Gabriel García Márquez"></div>
+                        <div class="field-group"><label class="field-label">País de origen <span class="req">*</span></label><input class="field" asp-for="PaisOrigen" placeholder="Ej. Colombia"></div>
+                        <button class="btn btn-primary btn-block" type="submit">Guardar autor</button>
+                    </form>
+                </div>
+            </div>
+
+        </main>
+    </div>
+    <script src="~/js/site.js"></script>
+</body>
+</html>
