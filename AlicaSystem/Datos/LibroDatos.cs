@@ -179,5 +179,16 @@ namespace AlicaSystem.Datos
             }
             return null;
         }
+
+        // Cuenta el total de libros registrados en el catalogo.
+        // Se usa para el KPI "Libros en catalogo" del Dashboard Administrador.
+        public int ContarLibrosCatalogo()
+        {
+            using SqlConnection cn = conexionBD.ObtenerConexion();
+            cn.Open();
+            using SqlCommand cmd = new SqlCommand("sp_ContarLibrosCatalogo", cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            return Convert.ToInt32(cmd.ExecuteScalar());
+        }
     }
 }

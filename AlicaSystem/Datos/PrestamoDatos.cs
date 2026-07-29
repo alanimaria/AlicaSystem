@@ -12,6 +12,13 @@ namespace AlicaSystem.Datos
         public string Accion { get; set; } = string.Empty;
     }
 
+    public class LibroMasPrestado
+    {
+        public string Libro { get; set; } = string.Empty;
+        public int CantidadPrestamos { get; set; }
+        public int BarraAncho { get; set; } // porcentaje 0-100, calculado en C#
+    }
+
     public class PrestamoDatos
     {
         private readonly ConexionBD conexionBD;
@@ -93,10 +100,6 @@ namespace AlicaSystem.Datos
             return (0, "No se pudo registrar el prestamo.");
         }
 
-        // Registra la devolucion de un prestamo activo.
-        // Recibe el idEmpleado que procesa la devolucion, porque si el
-        // prestamo se devuelve tarde, se genera una multa automatica
-        // (RD$50 por dia de atraso) y esa multa necesita registrar quien la generó.
         public bool RegistrarDevolucion(int idPrestamo, int idEmpleado)
         {
             using SqlConnection cn = conexionBD.ObtenerConexion();
@@ -108,10 +111,6 @@ namespace AlicaSystem.Datos
             return Convert.ToInt32(cmd.ExecuteScalar()) == 1;
         }
 
-        // ---- Métodos de Lector (Mis préstamos) ----
-
-        // Cuenta cuántos préstamos activos tiene un usuario específico.
-        // Se usa para el KPI "Préstamos activos X/3" del Dashboard Lector.
         public int ContarPrestamosActivosPorUsuario(int idUsuario)
         {
             using SqlConnection cn = conexionBD.ObtenerConexion();
@@ -192,6 +191,41 @@ namespace AlicaSystem.Datos
                 return (exito, mensaje);
             }
             return (false, "No se pudo renovar el préstamo.");
+        }
+
+        // Trae los libros mas prestados para el grafico de barras del
+        // Dashboard Administrador. BarraAncho se calcula relativo al
+        // libro con mas prestamos (ese queda en 100%).
+        public List<LibroMasPrestado> ListarTopLibrosMasPrestados(int top = 4)
+        {
+            var lista = new List<LibroMasPrestado>();
+
+            using SqlConnection cn = conexionBD.ObtenerConexion();
+            cn.Open();
+            using SqlCommand cmd = new SqlCommand("sp_TopLibrosMasPrestados", cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@Top", top);
+
+            using SqlDataReader dr = cmd.ExecuteReader();
+            while (dr.Read())
+            {
+                lista.Add(new LibroMasPrestado
+                {
+                    Libro = dr["Libro"].ToString()!,
+                    CantidadPrestamos = Convert.ToInt32(dr["CantidadPrestamos"])
+                });
+            }
+
+            if (lista.Count > 0)
+            {
+                int max = lista[0].CantidadPrestamos;
+                foreach (var item in lista)
+                {
+                    item.BarraAncho = max == 0 ? 0 : (int)Math.Round(item.CantidadPrestamos * 100.0 / max);
+                }
+            }
+
+            return lista;
         }
     }
 }

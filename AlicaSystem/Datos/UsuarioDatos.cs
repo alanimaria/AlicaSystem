@@ -8,8 +8,6 @@ namespace AlicaSystem.Datos
     {
         private readonly ConexionBD conexionBD;
 
-        // Este constructor recibe un ConexionBD ya armado
-        // (en vez de crearlo él mismo con "new")
         public UsuarioDatos(ConexionBD conexionBD)
         {
             this.conexionBD = conexionBD;
@@ -134,14 +132,6 @@ namespace AlicaSystem.Datos
             }
         }
 
-        // Busca un lector por su matricula, solo entre usuarios activos.
-        // Se usa en Registrar Prestamo, para que el bibliotecario
-        // confirme visualmente que es la persona correcta antes de prestar.
-        //
-        // Devuelve una tupla en vez de un Usuario completo porque
-        // PrestamosActivos y TieneMultaPendiente son datos calculados
-        // (no columnas de la tabla usuario), y son especificos de esta
-        // pantalla.
         public (int IdUsuario, string Nombre, string Apellido, string Matricula, int PrestamosActivos, bool TieneMultaPendiente)? BuscarPorMatricula(string matricula)
         {
             using SqlConnection cn = conexionBD.ObtenerConexion();
@@ -165,6 +155,17 @@ namespace AlicaSystem.Datos
             }
 
             return null;
+        }
+
+        // Cuenta cuantos lectores tienen estado = activo.
+        // Se usa para el KPI "Usuarios activos" del Dashboard Administrador.
+        public int ContarUsuariosActivos()
+        {
+            using SqlConnection cn = conexionBD.ObtenerConexion();
+            cn.Open();
+            using SqlCommand cmd = new SqlCommand("sp_ContarUsuariosActivos", cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            return Convert.ToInt32(cmd.ExecuteScalar());
         }
     }
 }
