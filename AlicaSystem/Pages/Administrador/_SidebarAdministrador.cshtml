@@ -8,13 +8,14 @@
     </div>
     <nav class="nav-group">
         <div class="nav-group-label">Administrador</div>
+        <a class="nav-item @(activo == "Dashboard" ? "active" : "")" href="/Administrador/Dashboard"><span class="dot"></span>Menú principal</a>
         <a class="nav-item @(activo == "GestionarLibros" ? "active" : "")" href="/Administrador/GestionarLibros"><span class="dot"></span>Libros</a>
         <a class="nav-item @(activo == "GestionarCategorias" ? "active" : "")" href="/Administrador/GestionarCategorias"><span class="dot"></span>Categorías</a>
         <a class="nav-item @(activo == "GestionarAutores" ? "active" : "")" href="/Administrador/GestionarAutores"><span class="dot"></span>Autores</a>
         <a class="nav-item @(activo == "GestionarPersonas" ? "active" : "")" href="/Administrador/GestionarPersonas"><span class="dot"></span>Usuarios</a>
         <a class="nav-item @(activo == "GestionarEmpleados" ? "active" : "")" href="/Administrador/GestionarEmpleados"><span class="dot"></span>Empleados</a>
         <a class="nav-item @(activo == "GestionarRoles" ? "active" : "")" href="/Administrador/GestionarRoles"><span class="dot"></span>Roles</a>
-       
+
     </nav>
     <div class="sidebar-foot">
         <a class="nav-item" href="/Logout" style="margin-bottom:10px;"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a>

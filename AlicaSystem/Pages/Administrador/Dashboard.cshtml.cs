@@ -1,20 +1,33 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using AlicaSystem.Datos;
 
 namespace AlicaSystem.Pages.Administrador
 {
-    // Dashboard del Administrador: a diferencia del dashboard del
-    // bibliotecario, este NO trae ningun conteo ni consulta a la BD
-    // (por eso no necesita ningun stored procedure propio). Es solo
-    // una pantalla de accesos rapidos a las demas secciones del
-    // administrador (Libros, Categorias, Autores, Usuarios,
-    // Empleados, Roles). Si mas adelante se quiere agregar KPIs
-    // (ej. "1,248 libros en catalogo" como muestra el mockup), ahi
-    // si haria falta crear SPs de conteo, similares a los del
-    // dashboard del bibliotecario.
+    // Dashboard del Administrador: version con 4 KPIs (libros en catalogo,
+    // usuarios activos, prestamos activos, multas pendientes) + grafico de
+    // barras "Libros mas prestados" + panel de accesos rapidos, segun el
+    // mockup (screen-dash-admin).
+    //
+    // sp_ContarPrestamosActivos ya existia (mismo que usa el dashboard del
+    // bibliotecario). Los otros 3 conteos + el top de libros se agregaron
+    // en el cambio #10-#13 (2026-07-26_admin-dashboard-kpis.sql).
     public class DashboardModel : PageModel
     {
+        private readonly ConexionBD conexionBD;
+
+        public DashboardModel(ConexionBD conexionBD)
+        {
+            this.conexionBD = conexionBD;
+        }
+
         public string NombreUsuario { get; set; } = string.Empty;
+
+        public int LibrosEnCatalogo { get; set; }
+        public int UsuariosActivos { get; set; }
+        public int PrestamosActivos { get; set; }
+        public ResumenMultasPendientes ResumenMultas { get; set; } = new();
+        public List<LibroMasPrestado> TopLibros { get; set; } = new();
 
         public IActionResult OnGet()
         {
@@ -29,6 +42,17 @@ namespace AlicaSystem.Pages.Administrador
             }
 
             NombreUsuario = HttpContext.Session.GetString("NombreUsuario") ?? "";
+
+            var libroDatos = new LibroDatos(conexionBD);
+            var usuarioDatos = new UsuarioDatos(conexionBD);
+            var multaDatos = new MultaDatos(conexionBD);
+            var prestamoDatos = new PrestamoDatos(conexionBD);
+
+            LibrosEnCatalogo = libroDatos.ContarLibrosCatalogo();
+            UsuariosActivos = usuarioDatos.ContarUsuariosActivos();
+            PrestamosActivos = prestamoDatos.ContarPrestamosActivos();
+            ResumenMultas = multaDatos.ObtenerResumenMultasPendientes();
+            TopLibros = prestamoDatos.ListarTopLibrosMasPrestados(4);
 
             return Page();
         }

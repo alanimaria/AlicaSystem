@@ -26,39 +26,61 @@
                     <h1>Panel general del sistema</h1>
                     <span class="badge-role">@Model.NombreUsuario</span>
                 </div>
-                <p>Gestiona el catálogo, las personas y la configuración del sistema.</p>
+                <p>Visión general del catálogo, usuarios, préstamos y actividad del sistema.</p>
             </div>
 
-            <div class="grid-4">
-                <div class="card pad-m" style="cursor:pointer;" onclick="location.href='/Administrador/GestionarLibros'">
-                    <div class="quick-icon"><i class="bi bi-journal-bookmark" style="font-size:20px;"></i></div>
-                    <div style="font-weight:600; color:var(--navy-deep); margin-top:8px;">Libros</div>
-                    <div style="font-size:12px; color:var(--ink-soft); margin-top:2px;">Catálogo e inventario</div>
+            <div class="kpis" style="margin-bottom:22px;">
+                <div class="stat-card">
+                    <div class="label">Libros en catálogo</div>
+                    <div class="value">@Model.LibrosEnCatalogo.ToString("N0")</div>
                 </div>
-                <div class="card pad-m" style="cursor:pointer;" onclick="location.href='/Administrador/GestionarCategorias'">
-                    <div class="quick-icon"><i class="bi bi-tags" style="font-size:20px;"></i></div>
-                    <div style="font-weight:600; color:var(--navy-deep); margin-top:8px;">Categorías</div>
-                    <div style="font-size:12px; color:var(--ink-soft); margin-top:2px;">Organizar el catálogo</div>
+                <div class="stat-card">
+                    <div class="label">Usuarios activos</div>
+                    <div class="value">@Model.UsuariosActivos.ToString("N0")</div>
                 </div>
-                <div class="card pad-m" style="cursor:pointer;" onclick="location.href='/Administrador/GestionarAutores'">
-                    <div class="quick-icon"><i class="bi bi-person-badge" style="font-size:20px;"></i></div>
-                    <div style="font-weight:600; color:var(--navy-deep); margin-top:8px;">Autores</div>
-                    <div style="font-size:12px; color:var(--ink-soft); margin-top:2px;">Gestionar autores registrados</div>
+                <div class="stat-card">
+                    <div class="label">Préstamos activos</div>
+                    <div class="value">@Model.PrestamosActivos.ToString("N0")</div>
                 </div>
-                <div class="card pad-m" style="cursor:pointer;" onclick="location.href='/Administrador/GestionarPersonas'">
-                    <div class="quick-icon"><i class="bi bi-people" style="font-size:20px;"></i></div>
-                    <div style="font-weight:600; color:var(--navy-deep); margin-top:8px;">Usuarios</div>
-                    <div style="font-size:12px; color:var(--ink-soft); margin-top:2px;">Gestionar lectores</div>
+                <div class="stat-card">
+                    <div class="label">Multas pendientes</div>
+                    <div class="value">RD$ @Model.ResumenMultas.TotalPendiente.ToString("N0")</div>
+                    <div class="foot">@Model.ResumenMultas.UsuariosConSaldo usuarios</div>
                 </div>
-                <div class="card pad-m" style="cursor:pointer;" onclick="location.href='/Administrador/GestionarEmpleados'">
-                    <div class="quick-icon"><i class="bi bi-person-workspace" style="font-size:20px;"></i></div>
-                    <div style="font-weight:600; color:var(--navy-deep); margin-top:8px;">Empleados</div>
-                    <div style="font-size:12px; color:var(--ink-soft); margin-top:2px;">Bibliotecarios y administradores</div>
+            </div>
+
+            <div class="grid-2">
+                <div class="card pad-m">
+                    <div class="section-head"><h2 style="font-size:16px;">Libros más prestados</h2></div>
+                    @if (Model.TopLibros.Count == 0)
+                    {
+                        <p style="color:var(--ink-soft); font-size:13px;">Aún no hay préstamos registrados.</p>
+                    }
+                    else
+                    {
+                        @foreach (var libro in Model.TopLibros)
+                        {
+                            <div class="bar-row">
+                                <div class="bar-label">@libro.Libro</div>
+                                <div class="bar-track"><div class="bar-fill" style="width:@(libro.BarraAncho)%;"></div></div>
+                                <div class="bar-value">@libro.CantidadPrestamos</div>
+                            </div>
+                        }
+                    }
                 </div>
-                <div class="card pad-m" style="cursor:pointer;" onclick="location.href='/Administrador/GestionarRoles'">
-                    <div class="quick-icon"><i class="bi bi-shield-lock" style="font-size:20px;"></i></div>
-                    <div style="font-weight:600; color:var(--navy-deep); margin-top:8px;">Roles</div>
-                    <div style="font-size:12px; color:var(--ink-soft); margin-top:2px;">Permisos del sistema</div>
+                <div class="card pad-m">
+                    <div class="section-head"><h2 style="font-size:16px;">Accesos rápidos</h2></div>
+                    <div style="display:flex; flex-direction:column; gap:8px;">
+                        <button class="btn btn-ghost btn-block" style="justify-content:flex-start;" onclick="location.href='/Administrador/GestionarLibros'">
+                            <i class="bi bi-journal-bookmark"></i> Gestionar libros y autores
+                        </button>
+                        <button class="btn btn-ghost btn-block" style="justify-content:flex-start;" onclick="location.href='/Administrador/GestionarPersonas'">
+                            <i class="bi bi-people"></i> Gestionar usuarios
+                        </button>
+                        <button class="btn btn-ghost btn-block" style="justify-content:flex-start;" onclick="location.href='/Administrador/GestionarEmpleados'">
+                            <i class="bi bi-person-workspace"></i> Gestionar empleados
+                        </button>
+                    </div>
                 </div>
             </div>
         </main>

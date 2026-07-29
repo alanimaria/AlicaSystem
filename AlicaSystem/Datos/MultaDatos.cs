@@ -4,9 +4,16 @@ using AlicaSystem.Models;
 
 namespace AlicaSystem.Datos
 {
+    public class ResumenMultasPendientes
+    {
+        public decimal TotalPendiente { get; set; }
+        public int UsuariosConSaldo { get; set; }
+    }
+
     // Esta clase se encarga de todo lo relacionado a MULTAS, tanto para
     // el Bibliotecario (Dashboard + pantalla "Multas") como para el
-    // Lector (Dashboard + "Mis multas").
+    // Lector (Dashboard + "Mis multas") y el Administrador (KPI del
+    // Dashboard).
     public class MultaDatos
     {
         private readonly ConexionBD conexionBD;
@@ -16,7 +23,6 @@ namespace AlicaSystem.Datos
             this.conexionBD = conexionBD;
         }
 
-        // Devuelve cuantos usuarios tienen multas sin pagar todavia
         public int ContarMultasPendientes()
         {
             using SqlConnection cn = conexionBD.ObtenerConexion();
@@ -30,9 +36,6 @@ namespace AlicaSystem.Datos
 
         // ---- Metodos para el Bibliotecario (pantalla "Multas") ----
 
-        // Trae TODAS las multas (Pendiente, Pagada, Perdonada) con el
-        // detalle del prestamo asociado, para la pantalla "Multas".
-        // El filtrado por pestana se hace en el frontend con JS.
         public List<Multa> ListarMultas()
         {
             var lista = new List<Multa>();
@@ -65,8 +68,6 @@ namespace AlicaSystem.Datos
             return lista;
         }
 
-        // Marca una multa como Pagada o Perdonada. Devuelve true si funciono.
-        // Solo se puede aplicar sobre una multa que este en estado Pendiente.
         public bool ActualizarEstadoMulta(int idMulta, string estadoDestino)
         {
             using SqlConnection cn = conexionBD.ObtenerConexion();
@@ -103,9 +104,6 @@ namespace AlicaSystem.Datos
             return (false, "No se pudo registrar la multa.");
         }
 
-        // Cuenta cuántas multas sin pagar (fecha_pago = NULL) tiene un
-        // usuario específico. Se usa para el KPI "Multas pendientes"
-        // del Dashboard Lector.
         public int ContarMultasPendientesPorUsuario(int idUsuario)
         {
             using SqlConnection cn = conexionBD.ObtenerConexion();
@@ -116,8 +114,6 @@ namespace AlicaSystem.Datos
             return Convert.ToInt32(cmd.ExecuteScalar());
         }
 
-        // Lista las multas de un usuario específico, con el libro que
-        // las generó (vista Lector: Mis préstamos, pestaña Multas)
         public List<Multa> ListarMultasPorUsuario(int idUsuario)
         {
             var lista = new List<Multa>();
@@ -142,6 +138,27 @@ namespace AlicaSystem.Datos
                 });
             }
             return lista;
+        }
+
+        // ---- Metodo para el Administrador (Dashboard) ----
+
+        public ResumenMultasPendientes ObtenerResumenMultasPendientes()
+        {
+            using SqlConnection cn = conexionBD.ObtenerConexion();
+            cn.Open();
+            using SqlCommand cmd = new SqlCommand("sp_SumarMultasPendientes", cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+
+            using SqlDataReader dr = cmd.ExecuteReader();
+            if (dr.Read())
+            {
+                return new ResumenMultasPendientes
+                {
+                    TotalPendiente = Convert.ToDecimal(dr["TotalPendiente"]),
+                    UsuariosConSaldo = Convert.ToInt32(dr["UsuariosConSaldo"])
+                };
+            }
+            return new ResumenMultasPendientes();
         }
     }
 }
