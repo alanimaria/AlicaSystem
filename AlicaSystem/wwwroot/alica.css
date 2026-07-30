@@ -421,3 +421,6 @@ tbody tr:hover{background:var(--paper-dim);}
   .topbar{padding:14px 16px;}
   .canvas-wrap{padding:14px;}
 }
+.show-block {
+    display: block !important;
+}

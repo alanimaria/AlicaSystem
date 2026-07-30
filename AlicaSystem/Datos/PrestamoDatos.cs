@@ -120,7 +120,29 @@ namespace AlicaSystem.Datos
             cmd.Parameters.AddWithValue("@IdUsuario", idUsuario);
             return Convert.ToInt32(cmd.ExecuteScalar());
         }
+        public List<PrestamoActivoResumen> ListarPrestamosActivosGlobal()
+        {
+            var lista = new List<PrestamoActivoResumen>();
+            using SqlConnection cn = conexionBD.ObtenerConexion();
+            cn.Open();
+            using SqlCommand cmd = new SqlCommand("sp_ListarPrestamosActivosGlobal", cn);
+            cmd.CommandType = CommandType.StoredProcedure;
 
+            using SqlDataReader dr = cmd.ExecuteReader();
+            while (dr.Read())
+            {
+                lista.Add(new PrestamoActivoResumen
+                {
+                    Usuario = dr["usuario"].ToString()!,
+                    Matricula = dr["matricula"].ToString()!,
+                    Titulo = dr["titulo"].ToString()!,
+                    CodigoInterno = dr["codigo_interno"].ToString()!,
+                    FechaDevEsperada = Convert.ToDateTime(dr["fecha_dev_esperada"]),
+                    DiasAtraso = Convert.ToInt32(dr["dias_atraso"])
+                });
+            }
+            return lista;
+        }
         public List<Prestamo> ListarPrestamosActivosPorUsuario(int idUsuario)
         {
             var lista = new List<Prestamo>();

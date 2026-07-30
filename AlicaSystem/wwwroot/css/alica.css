@@ -541,6 +541,7 @@ a {
     cursor: pointer;
 }
 
+
     .btn-tab.active {
         color: var(--navy-deep);
         border-color: var(--clay);
@@ -551,4 +552,7 @@ a {
 input[type="password"]::-ms-reveal,
 input[type="password"]::-ms-clear {
     display: none;
+}
+.show-block {
+    display: block !important;
 }

@@ -1,11 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using AlicaSystem.Datos;
 using AlicaSystem.Models;
 
 namespace AlicaSystem.Pages.Administrador
 {
-    public class GestionarLibrosModel : PageModel
+    public class GestionarLibrosModel : PaginaAdministradorBase
     {
         private readonly LibroDatos libroDatos;
         private readonly CategoriaDatos categoriaDatos;

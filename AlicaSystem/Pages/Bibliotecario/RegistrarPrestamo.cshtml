@@ -62,8 +62,8 @@
                     <div class="field-group">
                         <label class="field-label">Bibliotecario responsable</label>
                         <div class="userline" style="padding:8px 0;">
-                            <div class="avatar">@(Model.NombreUsuario.Length > 0 ? Model.NombreUsuario.Substring(0, 1) : "")</div>
-                            <div><div class="who">@Model.NombreUsuario</div><div class="sub">Sesión activa</div></div>
+                            <div class="avatar">@(Model.NombreUsuarioSesion.Length > 0 ? Model.NombreUsuarioSesion.Substring(0, 1) : "")</div>
+                            <div><div class="who">@Model.NombreUsuarioSesion</div><div class="sub">Sesión activa</div></div>
                         </div>
                     </div>
 
@@ -96,9 +96,6 @@
             let idUsuarioEncontrado = null;
             let usuarioPuedeTomarPrestamo = false;
 
-            // Muestra fecha de hoy y fecha de devolucion esperada (hoy + DIAS_PLAZO)
-            // apenas carga la pagina. Son solo informativas: el plazo real
-            // lo calcula el stored procedure al registrar.
             function mostrarFechas() {
                 const hoy = new Date();
                 const devolucion = new Date();

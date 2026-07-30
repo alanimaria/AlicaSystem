@@ -24,7 +24,7 @@
                 <span class="eyebrow">Bibliotecario · Menú principal</span>
                 <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
                     <h1>Panel operativo</h1>
-                    <span class="badge-role">@Model.NombreUsuario</span>
+                    <span class="badge-role">@Model.NombreUsuarioSesion</span>
                 </div>
                 <p>Gestiona préstamos, devoluciones, reservas y multas del día.</p>
             </div>
@@ -35,7 +35,7 @@
                     <div style="font-weight:600; color:var(--navy-deep); margin-top:8px;">Registrar préstamo</div>
                     <div style="font-size:12px; color:var(--ink-soft); margin-top:2px;">Entregar libro a un lector</div>
                 </div>
-                <div class="card pad-m" style="cursor:pointer;">
+                <div class="card pad-m" style="cursor:pointer;" onclick="location.href='/Bibliotecario/Devoluciones'">
                     <div class="quick-icon clay"><i class="bi bi-arrow-return-left" style="font-size:20px;"></i></div>
                     <div style="font-weight:600; color:var(--navy-deep); margin-top:8px;">Registrar devolución</div>
                     <div style="font-size:12px; color:var(--ink-soft); margin-top:2px;">Cerrar un préstamo activo</div>
@@ -52,11 +52,49 @@
                 </div>
             </div>
 
-            <div class="card pad-m" style="margin-bottom:22px; display:flex; align-items:center; gap:12px;">
-                <i class="bi bi-journal-check" style="font-size:22px; color:var(--navy-deep);"></i>
-                <div>
-                    <div style="font-size:12px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.05em;">Préstamos activos</div>
-                    <div style="font-size:32px; font-weight:700; color:var(--navy-deep);">@Model.PrestamosActivos</div>
+            <div class="card pad-m" style="margin-bottom:22px;">
+                <div style="display:flex; align-items:center; justify-content:space-between; cursor:pointer;" onclick="document.getElementById('detallePrestamos').classList.toggle('show-block')">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <i class="bi bi-journal-check" style="font-size:22px; color:var(--navy-deep);"></i>
+                        <div>
+                            <div style="font-size:12px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.05em;">Préstamos activos</div>
+                            <div style="font-size:32px; font-weight:700; color:var(--navy-deep);">@Model.PrestamosActivos</div>
+                        </div>
+                    </div>
+                    <i class="bi bi-chevron-down" style="color:var(--ink-soft);"></i>
+                </div>
+
+                <div id="detallePrestamos" style="display:none; margin-top:16px; border-top:1px solid var(--line); padding-top:14px;">
+                    @if (Model.PrestamosActivosDetalle.Count == 0)
+                    {
+                        <p style="color:var(--ink-soft); font-size:13px;">No hay préstamos activos en este momento.</p>
+                    }
+                    else
+                    {
+                        <table>
+                            <thead><tr><th>Usuario</th><th>Libro</th><th>Devolución esperada</th><th>Atraso</th></tr></thead>
+                            <tbody>
+                                @foreach (var p in Model.PrestamosActivosDetalle)
+                                {
+                                    <tr>
+                                        <td>@p.Usuario<div class="sub">@p.Matricula</div></td>
+                                        <td>@p.Titulo<div class="sub">@p.CodigoInterno</div></td>
+                                        <td>@p.FechaDevEsperada.ToString("dd MMM yyyy")</td>
+                                        <td>
+                                            @if (p.DiasAtraso > 0)
+                                            {
+                                                <span class="stamp danger">@p.DiasAtraso día(s)</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="stamp ok">A tiempo</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
                 </div>
             </div>
 
