@@ -1,12 +1,11 @@
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using AlicaSystem.Datos;
 using AlicaSystem.Models;
 
 namespace AlicaSystem.Pages.Administrador
 {
-    public class GestionarPersonasModel : PageModel
+    public class GestionarPersonasModel : PaginaAdministradorBase
     {
         private readonly UsuarioDatos usuarioDatos;
 
@@ -28,6 +27,7 @@ namespace AlicaSystem.Pages.Administrador
         public string Apellido { get; set; } = string.Empty;
         [BindProperty]
         public string? Telefono { get; set; }
+
 
         public void OnGet(int? id, string? buscar)
         {

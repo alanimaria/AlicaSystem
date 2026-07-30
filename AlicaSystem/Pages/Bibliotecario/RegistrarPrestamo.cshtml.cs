@@ -1,11 +1,10 @@
 using AlicaSystem.Datos;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace AlicaSystem.Pages.Bibliotecario
 {
     // Cerebro de la pantalla "Registrar prestamo".
-    public class RegistrarPrestamoModel : PageModel
+    public class RegistrarPrestamoModel : PaginaBibliotecarioBase
     {
         private readonly PrestamoDatos prestamoDatos;
         private readonly UsuarioDatos usuarioDatos;
@@ -16,21 +15,8 @@ namespace AlicaSystem.Pages.Bibliotecario
             this.usuarioDatos = usuarioDatos;
         }
 
-        // Se muestra en la tarjeta "Bibliotecario responsable"
-        public string NombreUsuario { get; set; } = string.Empty;
-
-        public IActionResult OnGet()
+        public void OnGet()
         {
-            string? rol = HttpContext.Session.GetString("Rol");
-
-            if (rol != "Bibliotecario" && rol != "Administrador")
-            {
-                return RedirectToPage("/Login");
-            }
-
-            NombreUsuario = HttpContext.Session.GetString("NombreUsuario") ?? "";
-
-            return Page();
         }
 
         // Se llama cuando el bibliotecario aprieta "Buscar" junto al libro.
@@ -51,8 +37,6 @@ namespace AlicaSystem.Pages.Bibliotecario
         }
 
         // Se llama cuando el bibliotecario aprieta "Buscar" junto al lector.
-        // Ahora tambien devuelve cuantos prestamos activos tiene el usuario
-        // y si tiene alguna multa pendiente.
         public IActionResult OnGetBuscarLector(string matricula)
         {
             var usuario = usuarioDatos.BuscarPorMatricula(matricula);
@@ -71,17 +55,9 @@ namespace AlicaSystem.Pages.Bibliotecario
         }
 
         // Se llama cuando el bibliotecario aprieta "Registrar prestamo".
-        // El SP ya valida multas pendientes, maximo de prestamos activos
-        // y copias disponibles, y devuelve el mensaje exacto del motivo
-        // si algo no se pudo hacer.
         public IActionResult OnPostRegistrar(int idUsuario, int idLibro)
         {
-            int? idEmpleado = HttpContext.Session.GetInt32("IdEmpleado");
-
-            if (idEmpleado == null)
-                return new JsonResult(new { exito = false, mensaje = "Sesion invalida. Vuelve a iniciar sesion." });
-
-            var (idPrestamo, mensaje) = prestamoDatos.RegistrarPrestamo(idUsuario, idLibro, idEmpleado.Value);
+            var (idPrestamo, mensaje) = prestamoDatos.RegistrarPrestamo(idUsuario, idLibro, IdEmpleadoSesion);
 
             return new JsonResult(new { exito = idPrestamo > 0, idPrestamo, mensaje });
         }

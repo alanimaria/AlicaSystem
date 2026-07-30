@@ -56,14 +56,24 @@ namespace AlicaSystem.Datos
             cmd.ExecuteNonQuery();
         }
 
-        public void EliminarCategoria(int idCategoria)
+        public bool EliminarCategoria(int idCategoria, out string? error)
         {
-            using SqlConnection cn = conexionBD.ObtenerConexion();
-            cn.Open();
-            using SqlCommand cmd = new SqlCommand("sp_EliminarCategoria", cn);
-            cmd.CommandType = CommandType.StoredProcedure;
-            cmd.Parameters.AddWithValue("@IdCategoria", idCategoria);
-            cmd.ExecuteNonQuery();
+            error = null;
+            try
+            {
+                using SqlConnection cn = conexionBD.ObtenerConexion();
+                cn.Open();
+                using SqlCommand cmd = new SqlCommand("sp_EliminarCategoria", cn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@IdCategoria", idCategoria);
+                cmd.ExecuteNonQuery();
+                return true;
+            }
+            catch (SqlException ex)
+            {
+                error = ex.Message;
+                return false;
+            }
         }
     }
 }
