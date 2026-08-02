@@ -12,6 +12,7 @@ builder.Services.AddScoped<AlicaSystem.Datos.ListaDatos>();
 builder.Services.AddScoped<AlicaSystem.Datos.AutorDatos>();
 builder.Services.AddScoped<AlicaSystem.Datos.EmpleadoDatos>();
 builder.Services.AddScoped<AlicaSystem.Datos.ReporteDatos>();
+builder.Services.AddScoped<AlicaSystem.Datos.RolDatos>();
 
 
 
@@ -52,6 +53,6 @@ app.UseAuthorization();
 
 app.MapStaticAssets();
 app.MapRazorPages()
-   .WithStaticAssets();
+    .WithStaticAssets();
 
 app.Run();
