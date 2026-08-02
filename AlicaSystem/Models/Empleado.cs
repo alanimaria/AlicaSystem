@@ -8,11 +8,18 @@
         public string Nombre { get; set; } = "";
         public string Apellido { get; set; } = "";
         public string Email { get; set; } = "";
+        public string? Telefono { get; set; }
         public string Area { get; set; } = "";
 
         // Viene de la tabla "rol" (join en el stored procedure).
         // Los valores esperados son "Bibliotecario" o "Administrador".
         // Con esto decidimos a dónde redirigir al usuario después del login.
         public string NombreRol { get; set; } = "";
+
+        // ---- Campos agregados para la pantalla "Gestionar Empleados" del Administrador ----
+        // (ValidarEmpleado, usado en el Login, no los necesita y no los llena)
+        public int IdRol { get; set; }
+        public DateTime FechaIngreso { get; set; }
+        public bool Estado { get; set; }
     }
 }
