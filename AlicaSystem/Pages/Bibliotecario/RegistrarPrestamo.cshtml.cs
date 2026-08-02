@@ -15,8 +15,11 @@ namespace AlicaSystem.Pages.Bibliotecario
             this.usuarioDatos = usuarioDatos;
         }
 
-        public void OnGet()
+        public string? CodigoPrecargado { get; set; }
+
+        public void OnGet(string? codigo)
         {
+            CodigoPrecargado = codigo;
         }
 
         // Se llama cuando el bibliotecario aprieta "Buscar" junto al libro.
@@ -55,10 +58,14 @@ namespace AlicaSystem.Pages.Bibliotecario
         }
 
         // Se llama cuando el bibliotecario aprieta "Registrar prestamo".
-        public IActionResult OnPostRegistrar(int idUsuario, int idLibro)
+        public IActionResult OnPostRegistrar(int idUsuario, int idLibro, int diasPlazo)
         {
-            var (idPrestamo, mensaje) = prestamoDatos.RegistrarPrestamo(idUsuario, idLibro, IdEmpleadoSesion);
+            if (diasPlazo < 1 || diasPlazo > 7)
+            {
+                return new JsonResult(new { exito = false, mensaje = "Los días de plazo deben estar entre 1 y 7." });
+            }
 
+            var (idPrestamo, mensaje) = prestamoDatos.RegistrarPrestamo(idUsuario, idLibro, IdEmpleadoSesion, diasPlazo);
             return new JsonResult(new { exito = idPrestamo > 0, idPrestamo, mensaje });
         }
     }

@@ -35,7 +35,7 @@
             <div class="grid-2" style="grid-template-columns:1.3fr .9fr; align-items:flex-start;">
                 <div class="card pad-m">
                     <table>
-                        <thead><tr><th>Título</th><th class="hide-mobile">Categoría</th><th class="hide-mobile">Disponibilidad</th><th>Acciones</th></tr></thead>
+                        <thead><tr><th>Título</th><th class="hide-mobile">Categoría</th><th class="hide-mobile">Disponibilidad</th><th>Estado</th><th>Acciones</th></tr></thead>
                         <tbody>
                             @foreach (var l in Model.Libros)
                             {
@@ -43,11 +43,13 @@
                                     <td>@l.Titulo<div class="sub">@l.CodigoInterno · @l.Autores</div></td>
                                     <td class="hide-mobile">@l.Categoria</td>
                                     <td class="hide-mobile">@l.CantidadDisponible / @l.CantidadTotal</td>
+                                    <td><span class="stamp @(l.EstadoLibro == "Dado de baja" ? "danger" : "ok")">@l.EstadoLibro</span></td>
                                     <td>
                                         <a class="btn btn-ghost btn-sm" href="/Administrador/GestionarLibros?id=@l.IdLibro">Editar</a>
-                                        <form method="post" asp-page-handler="Eliminar" class="confirm-delete" style="display:inline;">
-                                            <input type="hidden" name="id" value="@l.IdLibro" />
-                                            <button type="submit" class="btn btn-danger btn-sm">Desactivar</button>
+                                        <form method="post" asp-page-handler="CambiarEstado" asp-route-id="@l.IdLibro" asp-route-activar="@(l.EstadoLibro == "Dado de baja")" style="display:inline;">
+                                            <button type="submit" class="btn @(l.EstadoLibro == "Dado de baja" ? "btn-ghost" : "btn-danger") btn-sm">
+                                                @(l.EstadoLibro == "Dado de baja" ? "Activar" : "Desactivar")
+                                            </button>
                                         </form>
                                     </td>
                                 </tr>

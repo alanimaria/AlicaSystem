@@ -226,3 +226,23 @@ document.querySelectorAll('.ver-usuario').forEach(function (boton) {
         document.getElementById('modal-detalle-usuario').classList.add('show');
     });
 });
+function mostrarMensaje(texto) {
+    if (!document.getElementById('modal-mensaje')) {
+        const modal = document.createElement('div');
+        modal.id = 'modal-mensaje';
+        modal.className = 'modal-overlay';
+        modal.innerHTML = `
+            <div class="modal-card" style="max-width:340px;">
+                <p id="modal-mensaje-texto" style="margin-bottom:16px;"></p>
+                <div class="modal-acciones">
+                    <button type="button" class="btn btn-primary" id="modal-mensaje-cerrar">Aceptar</button>
+                </div>
+            </div>`;
+        document.body.appendChild(modal);
+        document.getElementById('modal-mensaje-cerrar').addEventListener('click', function () {
+            modal.classList.remove('show');
+        });
+    }
+    document.getElementById('modal-mensaje-texto').textContent = texto;
+    document.getElementById('modal-mensaje').classList.add('show');
+}

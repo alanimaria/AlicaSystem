@@ -77,6 +77,24 @@ namespace AlicaSystem.Pages.Administrador
 
         public IActionResult OnPost()
         {
+            if (string.IsNullOrWhiteSpace(Titulo) || string.IsNullOrWhiteSpace(CodigoInterno))
+            {
+                TempData["Mensaje"] = "Título y código interno son obligatorios.";
+                return RedirectToPage();
+            }
+
+            if (IdCategoria == 0)
+            {
+                TempData["Mensaje"] = "Debes seleccionar una categoría.";
+                return RedirectToPage();
+            }
+
+            if (CantidadTotal < 1)
+            {
+                TempData["Mensaje"] = "La cantidad total debe ser al menos 1.";
+                return RedirectToPage();
+            }
+
             int idEstadoLibro = 1;
 
             if (IdLibro == 0)
@@ -103,10 +121,10 @@ namespace AlicaSystem.Pages.Administrador
             return RedirectToPage();
         }
 
-        public IActionResult OnPostEliminar(int id)
+        public IActionResult OnPostCambiarEstado(int id, bool activar)
         {
-            bool ok = libroDatos.EliminarLibro(id, out string? error);
-            TempData["Mensaje"] = ok ? "Libro desactivado." : error;
+            bool ok = libroDatos.CambiarEstadoLibro(id, activar, out string? error);
+            TempData["Mensaje"] = ok ? (activar ? "Libro activado." : "Libro desactivado.") : error;
             return RedirectToPage();
         }
     }

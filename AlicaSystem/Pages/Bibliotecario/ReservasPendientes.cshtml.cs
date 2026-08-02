@@ -25,8 +25,8 @@ namespace AlicaSystem.Pages.Bibliotecario
         // (deben coincidir exacto con los nombres del catalogo ESTADO_RESERVA).
         public IActionResult OnPostActualizarEstado(int idReserva, string nuevoEstado)
         {
-            bool exito = reservaDatos.ActualizarEstadoReserva(idReserva, nuevoEstado, IdEmpleadoSesion);
-            return new JsonResult(new { exito });
+            var (exito, mensaje) = reservaDatos.ActualizarEstadoReserva(idReserva, nuevoEstado, IdEmpleadoSesion);
+            return new JsonResult(new { exito, mensaje });
         }
     }
 }

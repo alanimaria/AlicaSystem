@@ -43,6 +43,12 @@ namespace AlicaSystem.Pages.Administrador
 
         public IActionResult OnPost()
         {
+            if (string.IsNullOrWhiteSpace(Nombre))
+            {
+                TempData["Mensaje"] = "El nombre de la categoría es obligatorio.";
+                return RedirectToPage();
+            }
+
             if (IdCategoria == 0)
                 categoriaDatos.InsertarCategoria(Nombre, Descripcion);
             else

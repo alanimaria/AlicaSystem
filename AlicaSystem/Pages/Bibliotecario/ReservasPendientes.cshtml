@@ -90,9 +90,10 @@
                     // Quitamos la fila de la tabla, ya no esta pendiente
                     document.getElementById('fila-' + idReserva).remove();
                 } else {
-                    alert('No se pudo actualizar la reserva. Puede que ya no este pendiente.');
+                   mostrarMensaje(data.mensaje);
                 }
             }
     </script>
+    <script src="~/js/site.js"></script>
 </body>
 </html>
