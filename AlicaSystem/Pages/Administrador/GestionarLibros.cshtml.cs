@@ -35,6 +35,9 @@ namespace AlicaSystem.Pages.Administrador
         public int CantidadTotal { get; set; }
         [BindProperty]
         public string? Ubicacion { get; set; }
+        [BindProperty]
+        public string? PortadaUrl { get; set; }
+        public List<Libro> LibrosDesactivados { get; set; } = new();
 
         public void OnGet(int? id, string? buscar)
         {
@@ -51,6 +54,8 @@ namespace AlicaSystem.Pages.Administrador
                 ).ToList();
             }
 
+            LibrosDesactivados = Libros.Where(l => l.EstadoLibro == "Dado de baja").ToList();
+            Libros = Libros.Where(l => l.EstadoLibro != "Dado de baja").ToList();
             Categorias = categoriaDatos.ListarCategorias();
 
             if (id != null)
@@ -65,6 +70,7 @@ namespace AlicaSystem.Pages.Administrador
                     IdCategoria = l.IdCategoria;
                     CantidadTotal = l.CantidadTotal;
                     Ubicacion = l.Ubicacion;
+                    PortadaUrl = l.PortadaUrl;
                 }
             }
         }
@@ -96,16 +102,15 @@ namespace AlicaSystem.Pages.Administrador
             }
 
             int idEstadoLibro = 1;
-
             if (IdLibro == 0)
             {
-                int idLibroNuevo = libroDatos.InsertarLibro(Titulo, Isbn, CodigoInterno, IdCategoria, idEstadoLibro, CantidadTotal, Ubicacion);
+                int idLibroNuevo = libroDatos.InsertarLibro(Titulo, Isbn, CodigoInterno, IdCategoria, idEstadoLibro, CantidadTotal, Ubicacion, PortadaUrl);
                 IdLibro = idLibroNuevo;
             }
             else
             {
                 var libroActual = libroDatos.ListarLibrosAdmin().First(l => l.IdLibro == IdLibro);
-                libroDatos.ActualizarLibro(IdLibro, Titulo, Isbn, CodigoInterno, IdCategoria, libroActual.IdEstadoLibro, CantidadTotal, Ubicacion);
+                libroDatos.ActualizarLibro(IdLibro, Titulo, Isbn, CodigoInterno, IdCategoria, libroActual.IdEstadoLibro, CantidadTotal, Ubicacion, PortadaUrl);
             }
 
             var idsAutores = Request.Form["idsAutores"].ToString()

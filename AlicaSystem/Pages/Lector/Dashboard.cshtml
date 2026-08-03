@@ -80,7 +80,16 @@
                             {
                                 var l = Model.LibrosSugeridos[i];
                                 <div class="book-card">
-                                    <div class="book-cover @covers[i % covers.Length]"><span class="cat-tag">@l.Categoria</span>@l.Titulo</div>
+                                    @if (!string.IsNullOrEmpty(l.PortadaUrl))
+                                    {
+                                        <div class="book-cover" style="background-image:url('@l.PortadaUrl'); background-size:cover; background-position:center;">
+                                            <span class="cat-tag">@l.Categoria</span>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="book-cover @covers[i % covers.Length]"><span class="cat-tag">@l.Categoria</span>@l.Titulo</div>
+                                    }
                                     <div class="book-body"><div class="book-author">@(l.Autores ?? "Autor no registrado")</div><span class="stamp ok" style="align-self:flex-start;">Disponible</span></div>
                                 </div>
                             }

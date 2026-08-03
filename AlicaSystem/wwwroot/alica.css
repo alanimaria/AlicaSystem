@@ -53,17 +53,18 @@ a{color:inherit;}
 }
 
 /* ---------- Sidebar : catalog drawer ---------- */
-.sidebar{
-  background:var(--navy-deep);
-  color:#E9E4DB;
-  padding:26px 18px 22px;
-  display:flex;
-  flex-direction:column;
-  gap:22px;
-  position:sticky;
-  top:0;
-  height:100vh;
-  overflow-y:auto;
+.sidebar {
+    background: linear-gradient(180deg, transparent 60px, rgba(184,142,88,.35) 62px, rgba(184,142,88,.35) 64px, transparent 66px), linear-gradient(180deg, transparent calc(100% - 66px), rgba(184,142,88,.35) calc(100% - 64px), rgba(184,142,88,.35) calc(100% - 62px), transparent calc(100% - 60px)), repeating-linear-gradient(90deg, rgba(255,255,255,.02) 0px, rgba(255,255,255,.02) 1px, transparent 1px, transparent 3px), linear-gradient(90deg, rgba(0,0,0,.3), transparent 4%, transparent 96%, rgba(0,0,0,.3)), linear-gradient(180deg, #1a1210, #241713 40%, #1a1210);
+    box-shadow: inset -6px 0 12px -8px rgba(0,0,0,.5);
+    color: #E9E4DB;
+    padding: 26px 18px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
 }
 .brand{
   display:flex;

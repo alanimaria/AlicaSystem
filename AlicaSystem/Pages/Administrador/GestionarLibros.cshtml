@@ -56,6 +56,34 @@
                             }
                         </tbody>
                     </table>
+                    @if (Model.LibrosDesactivados.Count > 0)
+                    {
+                        <div class="card pad-m" style="margin-top:12px;">
+                            <div style="display:flex; align-items:center; justify-content:space-between; cursor:pointer;" onclick="document.getElementById('tablaDesactivados').classList.toggle('show-block')">
+                                <span style="font-size:13px; color:var(--ink-soft);">Libros desactivados (@Model.LibrosDesactivados.Count)</span>
+                                <i class="bi bi-chevron-down"></i>
+                            </div>
+                            <div id="tablaDesactivados" style="display:none; margin-top:12px;">
+                                <table>
+                                    <thead><tr><th>Título</th><th class="hide-mobile">Categoría</th><th>Acciones</th></tr></thead>
+                                    <tbody>
+                                        @foreach (var l in Model.LibrosDesactivados)
+                                        {
+                                            <tr>
+                                                <td>@l.Titulo<div class="sub">@l.CodigoInterno</div></td>
+                                                <td class="hide-mobile">@l.Categoria</td>
+                                                <td>
+                                                    <form method="post" asp-page-handler="CambiarEstado" asp-route-id="@l.IdLibro" asp-route-activar="true" style="display:inline;">
+                                                        <button type="submit" class="btn btn-ghost btn-sm">Activar</button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    }
                 </div>
 
                 <div class="card pad-l">
@@ -81,6 +109,7 @@
                         <div class="form-grid-2">
                             <div class="field-group"><label class="field-label">Cantidad total <span class="req">*</span></label><input class="field" type="number" min="1" asp-for="CantidadTotal"></div>
                             <div class="field-group"><label class="field-label">Ubicación</label><input class="field" asp-for="Ubicacion" placeholder="Ej. Estante A-3"></div>
+                            <div class="field-group"><label class="field-label">URL de portada</label><input class="field" asp-for="PortadaUrl" placeholder="https://..."></div>
                         </div>
 
                         <div class="field-group">
