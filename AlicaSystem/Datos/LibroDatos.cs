@@ -30,6 +30,7 @@ namespace AlicaSystem.Datos
             {
                 lista.Add(new Libro
                 {
+                    PortadaUrl = dr["portada_url"] == DBNull.Value ? null : dr["portada_url"].ToString(),
                     IdLibro = Convert.ToInt32(dr["id_libro"]),
                     Titulo = dr["titulo"].ToString()!,
                     Isbn = dr["isbn"] == DBNull.Value ? null : dr["isbn"].ToString(),
@@ -60,6 +61,7 @@ namespace AlicaSystem.Datos
             {
                 lista.Add(new Libro
                 {
+                    PortadaUrl = dr["portada_url"] == DBNull.Value ? null : dr["portada_url"].ToString(),
                     IdLibro = Convert.ToInt32(dr["id_libro"]),
                     Titulo = dr["titulo"].ToString()!,
                     Isbn = dr["isbn"] == DBNull.Value ? null : dr["isbn"].ToString(),
@@ -77,7 +79,7 @@ namespace AlicaSystem.Datos
             return lista;
         }
 
-        public int InsertarLibro(string titulo, string? isbn, string codigoInterno, int idCategoria, int idEstadoLibro, int cantidadTotal, string? ubicacion)
+        public int InsertarLibro(string titulo, string? isbn, string codigoInterno, int idCategoria, int idEstadoLibro, int cantidadTotal, string? ubicacion, string? portadaUrl)
         {
             using SqlConnection cn = conexionBD.ObtenerConexion();
             cn.Open();
@@ -90,7 +92,7 @@ namespace AlicaSystem.Datos
             cmd.Parameters.AddWithValue("@IdEstadoLibro", idEstadoLibro);
             cmd.Parameters.AddWithValue("@CantidadTotal", cantidadTotal);
             cmd.Parameters.AddWithValue("@Ubicacion", (object?)ubicacion ?? DBNull.Value);
-
+            cmd.Parameters.AddWithValue("@PortadaUrl", (object?)portadaUrl ?? DBNull.Value);
             return Convert.ToInt32(cmd.ExecuteScalar());
         }
 
@@ -116,7 +118,7 @@ namespace AlicaSystem.Datos
             cmd.ExecuteNonQuery();
         }
 
-        public void ActualizarLibro(int idLibro, string titulo, string? isbn, string codigoInterno, int idCategoria, int idEstadoLibro, int cantidadTotal, string? ubicacion)
+        public void ActualizarLibro(int idLibro, string titulo, string? isbn, string codigoInterno, int idCategoria, int idEstadoLibro, int cantidadTotal, string? ubicacion, string? portadaUrl)
         {
             using SqlConnection cn = conexionBD.ObtenerConexion();
             cn.Open();
@@ -130,6 +132,7 @@ namespace AlicaSystem.Datos
             cmd.Parameters.AddWithValue("@IdEstadoLibro", idEstadoLibro);
             cmd.Parameters.AddWithValue("@CantidadTotal", cantidadTotal);
             cmd.Parameters.AddWithValue("@Ubicacion", (object?)ubicacion ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@PortadaUrl", (object?)portadaUrl ?? DBNull.Value);
             cmd.ExecuteNonQuery();
         }
 
@@ -166,6 +169,7 @@ namespace AlicaSystem.Datos
             {
                 return new Libro
                 {
+                    PortadaUrl = dr["portada_url"] == DBNull.Value ? null : dr["portada_url"].ToString(),
                     IdLibro = Convert.ToInt32(dr["id_libro"]),
                     Titulo = dr["titulo"].ToString()!,
                     Isbn = dr["isbn"] == DBNull.Value ? null : dr["isbn"].ToString(),

@@ -6,6 +6,7 @@
         <img src="~/images/logo.png" alt="Alica System" style="width:40px;height:40px;object-fit:contain;">
         <div class="brand-text"><div class="name">Alica System</div><div class="sub">Sistema Bibliotecario</div></div>
     </div>
+    <a class="nav-item" href="javascript:history.back()" style="margin-bottom:8px;"><i class="bi bi-arrow-left"></i> Atrás</a>
     <nav class="nav-group">
         <div class="nav-group-label">Administrador</div>
         <a class="nav-item @(activo == "Dashboard" ? "active" : "")" href="/Administrador/Dashboard"><span class="dot"></span>Menú principal</a>
@@ -19,6 +20,6 @@
     </nav>
     <div class="sidebar-foot">
         <a class="nav-item" href="/Logout" style="margin-bottom:10px;"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a>
-        <div>Alica System · UNICDA · Desarrollo Web II</div>
+        
     </div>
 </aside>

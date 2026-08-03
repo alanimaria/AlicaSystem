@@ -44,6 +44,12 @@ namespace AlicaSystem.Pages.Administrador
 
         public IActionResult OnPost()
         {
+            if (string.IsNullOrWhiteSpace(Nombre))
+            {
+                TempData["Mensaje"] = "El nombre del rol es obligatorio.";
+                return RedirectToPage();
+            }
+
             bool exito;
             string? error;
 
@@ -53,13 +59,6 @@ namespace AlicaSystem.Pages.Administrador
                 exito = rolDatos.ActualizarRol(IdRol, Nombre, Descripcion, out error);
 
             TempData["Mensaje"] = exito ? "Rol guardado correctamente." : error;
-            return RedirectToPage();
-        }
-
-        public IActionResult OnPostEliminar(int id)
-        {
-            bool exito = rolDatos.EliminarRol(id, out string? error);
-            TempData["Mensaje"] = exito ? "Rol eliminado." : error;
             return RedirectToPage();
         }
     }

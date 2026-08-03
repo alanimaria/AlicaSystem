@@ -70,6 +70,12 @@ namespace AlicaSystem.Pages.Administrador
 
         public IActionResult OnPost()
         {
+            if (string.IsNullOrWhiteSpace(Nombre) || string.IsNullOrWhiteSpace(Apellido) || string.IsNullOrWhiteSpace(Email) || IdRol == 0 || string.IsNullOrWhiteSpace(Area))
+            {
+                TempData["Mensaje"] = "Nombre, apellido, correo, rol y área son obligatorios.";
+                return RedirectToPage();
+            }
+
             bool exito;
             string? error;
 
@@ -89,13 +95,6 @@ namespace AlicaSystem.Pages.Administrador
             }
 
             TempData["Mensaje"] = exito ? "Empleado guardado correctamente." : error;
-            return RedirectToPage();
-        }
-
-        public IActionResult OnPostCambiarEstado(int id, bool estado)
-        {
-            empleadoDatos.CambiarEstadoEmpleado(id, estado);
-            TempData["Mensaje"] = estado ? "Empleado reactivado." : "Empleado desactivado.";
             return RedirectToPage();
         }
     }

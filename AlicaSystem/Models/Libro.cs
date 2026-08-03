@@ -9,6 +9,7 @@
         public int IdCategoria { get; set; }
         public string Categoria { get; set; } = string.Empty;
         public int IdEstadoLibro { get; set; }
+        public string? PortadaUrl { get; set; }
         public string EstadoLibro { get; set; } = string.Empty;
         public int CantidadDisponible { get; set; }
         public int CantidadTotal { get; set; }
