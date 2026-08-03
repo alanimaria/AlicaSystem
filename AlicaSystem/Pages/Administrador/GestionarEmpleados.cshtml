@@ -12,6 +12,42 @@
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <link rel="stylesheet" href="~/css/alica.css">
+    <style>
+        .alerta{
+            padding:12px 16px;
+            border-radius:6px;
+            margin-bottom:16px;
+            font-size:14px;
+            font-weight:500;
+            border:1px solid transparent;
+        }
+        .alerta.ok{
+            background:#EAF4EF;
+            border-color:#BFE0CC;
+            color:#1F5A3C;
+        }
+        .alerta.error{
+            background:#FBEAEA;
+            border-color:#EFC0C0;
+            color:#8A2E2E;
+        }
+
+        .field-password-wrap{ position:relative; }
+        .field-password-wrap .field{ padding-right:42px; }
+        .toggle-password{
+            position:absolute;
+            right:12px; top:50%; transform:translateY(-50%);
+            background:none; border:none; cursor:pointer;
+            color:#5B6472; font-size:17px; line-height:1;
+            padding:4px;
+        }
+        .toggle-password:hover{ color:#1E2A3D; }
+
+        /* --- telefono: codigo de pais + numero --- */
+        .phone-row{ display:flex; gap:8px; }
+        .phone-row select.field{ flex:0 0 122px; }
+        .phone-row input.field{ flex:1; min-width:0; }
+    </style>
 </head>
 <body>
     <div class="app">
@@ -28,7 +64,11 @@
 
             @if (TempData["Mensaje"] != null)
             {
-                <p>@TempData["Mensaje"]</p>
+                var tipo = TempData["MensajeTipo"]?.ToString() == "error" ? "error" : "ok";
+                <div class="alerta @tipo">
+                    <i class="bi @(tipo == "error" ? "bi-exclamation-circle" : "bi-check-circle")"></i>
+                    @TempData["Mensaje"]
+                </div>
             }
 
             <div class="grid-2" style="grid-template-columns:1.3fr .9fr; align-items:flex-start;">
@@ -90,15 +130,37 @@
 
                 <div class="card pad-l">
                     <h3 style="font-size:15px; margin-bottom:16px;">Registrar / editar empleado</h3>
-                    <form method="post">
+                    <form method="post" id="formEmpleado" onsubmit="return combinarTelefono()">
                         <input type="hidden" asp-for="IdEmpleado" />
                         <div class="form-grid-2">
                             <div class="field-group"><label class="field-label">Nombre <span class="req">*</span></label><input class="field" asp-for="Nombre" placeholder="Nombre"></div>
                             <div class="field-group"><label class="field-label">Apellido <span class="req">*</span></label><input class="field" asp-for="Apellido" placeholder="Apellido"></div>
                         </div>
                         <div class="field-group"><label class="field-label">Correo institucional <span class="req">*</span></label><input class="field" asp-for="Email" placeholder="nombre.apellido@institucion.edu"></div>
+
                         <div class="form-grid-2">
-                            <div class="field-group"><label class="field-label">Teléfono</label><input class="field" asp-for="Telefono" placeholder="(809) 000-0000"></div>
+                            <div class="field-group">
+                                <label class="field-label">Teléfono</label>
+                                <div class="phone-row">
+                                    <select class="field" id="codigoPais">
+                                        <option value="+1">🇩🇴 +1</option>
+                                        <option value="+1">🇺🇸 +1</option>
+                                        <option value="+1">🇵🇷 +1</option>
+                                        <option value="+34">🇪🇸 +34</option>
+                                        <option value="+52">🇲🇽 +52</option>
+                                        <option value="+57">🇨🇴 +57</option>
+                                        <option value="+58">🇻🇪 +58</option>
+                                        <option value="+54">🇦🇷 +54</option>
+                                        <option value="+56">🇨🇱 +56</option>
+                                        <option value="+51">🇵🇪 +51</option>
+                                    </select>
+                                    <input class="field" type="tel" id="numeroTelefono"
+                                           inputmode="numeric" maxlength="16"
+                                           placeholder="(809) 555-1234">
+                                </div>
+                                <!-- este es el que realmente se guarda en la BD (VARCHAR(20)) -->
+                                <input type="hidden" asp-for="Telefono" id="telefonoCombinado" />
+                            </div>
                             @if (Model.IdEmpleado != 0)
                             {
                                 <div class="field-group">
@@ -107,6 +169,7 @@
                                 </div>
                             }
                         </div>
+
                         <div class="form-grid-2">
                             <div class="field-group">
                                 <label class="field-label">Rol <span class="req">*</span></label>
@@ -119,7 +182,15 @@
                         </div>
                         @if (Model.IdEmpleado == 0)
                         {
-                            <div class="field-group"><label class="field-label">Contraseña temporal <span class="req">*</span></label><input class="field" type="password" asp-for="Password" placeholder="Mínimo 8 caracteres"></div>
+                            <div class="field-group">
+                                <label class="field-label">Contraseña temporal <span class="req">*</span></label>
+                                <div class="field-password-wrap">
+                                    <input class="field" type="password" id="passwordEmpleado" asp-for="Password" placeholder="Mínimo 8 caracteres" minlength="8">
+                                    <button type="button" class="toggle-password" onclick="togglePassword()" aria-label="Mostrar u ocultar contraseña" tabindex="-1">
+                                        <i class="bi bi-eye" id="iconoPassword"></i>
+                                    </button>
+                                </div>
+                            </div>
                         }
                         <button class="btn btn-primary btn-block" type="submit">Guardar empleado</button>
                     </form>
@@ -128,5 +199,91 @@
 
         </main>
     </div>
+
+    <script>
+        function togglePassword() {
+            const input = document.getElementById('passwordEmpleado');
+            const icono = document.getElementById('iconoPassword');
+            const mostrando = input.type === 'text';
+            input.type = mostrando ? 'password' : 'text';
+            icono.classList.toggle('bi-eye', mostrando);
+            icono.classList.toggle('bi-eye-slash', !mostrando);
+        }
+
+        // cantidad maxima de digitos y tipo de formato segun el codigo de pais
+        // "na" = estilo Norteamerica (XXX) XXX-XXXX | "3" = agrupado cada 3 digitos
+        const configPais = {
+            "+1":  { max: 10, formato: "na" },
+            "+34": { max: 9,  formato: "3" },
+            "+52": { max: 10, formato: "3" },
+            "+57": { max: 10, formato: "3" },
+            "+58": { max: 10, formato: "3" },
+            "+54": { max: 10, formato: "3" },
+            "+56": { max: 9,  formato: "3" },
+            "+51": { max: 9,  formato: "3" },
+        };
+
+        function soloDigitos(str) { return (str || "").replace(/\D/g, ''); }
+
+        function formatearNumero(digits, tipo) {
+            if (tipo === "na") {
+                if (digits.length === 0) return "";
+                if (digits.length < 4) return `(${digits}`;
+                if (digits.length < 7) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+                return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
+            }
+            return digits.match(/.{1,3}/g)?.join(" ") ?? "";
+        }
+
+        const selectCodigoPais = document.getElementById('codigoPais');
+        const inputNumeroTelefono = document.getElementById('numeroTelefono');
+
+        // mientras escribe: recorta al maximo de digitos del pais actual y da formato
+        inputNumeroTelefono.addEventListener('input', function () {
+            const cfg = configPais[selectCodigoPais.value] || { max: 12, formato: "3" };
+            const digits = soloDigitos(this.value).slice(0, cfg.max);
+            this.value = formatearNumero(digits, cfg.formato);
+        });
+
+        // si cambia el pais, reaplica el limite/formato a lo que ya habia escrito
+        selectCodigoPais.addEventListener('change', function () {
+            inputNumeroTelefono.dispatchEvent(new Event('input'));
+        });
+
+        // arma "Telefono" (codigo + solo digitos) en el campo oculto antes de enviar el form
+        function combinarTelefono() {
+            const codigo = selectCodigoPais.value;
+            const numero = soloDigitos(inputNumeroTelefono.value);
+            document.getElementById('telefonoCombinado').value = numero ? `${codigo} ${numero}` : '';
+            return true;
+        }
+
+        // al editar un empleado existente, separa el Telefono guardado ("+1 8095551234")
+        // de vuelta en codigo + numero formateado para que se vea bien en el formulario
+        document.addEventListener('DOMContentLoaded', function () {
+            const valorGuardado = document.getElementById('telefonoCombinado').value.trim();
+            if (!valorGuardado) return;
+
+            const partes = valorGuardado.split(' ');
+            let codigoGuardado = "+1";
+            let digitosGuardados;
+
+            if (partes[0].startsWith('+')) {
+                codigoGuardado = partes[0];
+                digitosGuardados = soloDigitos(partes.slice(1).join(''));
+            } else {
+                // telefono viejo guardado sin codigo (datos de antes de este cambio)
+                digitosGuardados = soloDigitos(valorGuardado);
+            }
+
+            const opciones = Array.from(selectCodigoPais.options);
+            if (opciones.find(o => o.value === codigoGuardado)) {
+                selectCodigoPais.value = codigoGuardado;
+            }
+
+            const cfg = configPais[selectCodigoPais.value] || { max: 12, formato: "3" };
+            inputNumeroTelefono.value = formatearNumero(digitosGuardados.slice(0, cfg.max), cfg.formato);
+        });
+    </script>
 </body>
 </html>
