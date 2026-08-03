@@ -28,8 +28,6 @@ namespace AlicaSystem.Pages.Administrador
         [BindProperty]
         public string Email { get; set; } = string.Empty;
 
-        // Solo se usa al registrar un empleado nuevo (IdEmpleado == 0).
-        // Al editar, este campo llega vacío y no se toca la contraseña existente.
         [BindProperty]
         public string? Password { get; set; }
 
@@ -42,8 +40,6 @@ namespace AlicaSystem.Pages.Administrador
         [BindProperty]
         public string Area { get; set; } = string.Empty;
 
-        // Solo para mostrar en modo "editar" (readonly). El SP no la recibe,
-        // así que nunca se manda de vuelta al servidor para guardar.
         public DateTime? FechaIngreso { get; set; }
 
         public void OnGet(int? id)
@@ -84,6 +80,7 @@ namespace AlicaSystem.Pages.Administrador
                 if (string.IsNullOrWhiteSpace(Password))
                 {
                     TempData["Mensaje"] = "La contraseña temporal es obligatoria para registrar un empleado nuevo.";
+                    TempData["MensajeTipo"] = "error";
                     return RedirectToPage();
                 }
 
@@ -95,6 +92,15 @@ namespace AlicaSystem.Pages.Administrador
             }
 
             TempData["Mensaje"] = exito ? "Empleado guardado correctamente." : error;
+            TempData["MensajeTipo"] = exito ? "ok" : "error";
+            return RedirectToPage();
+        }
+
+        public IActionResult OnPostCambiarEstado(int id, bool estado)
+        {
+            empleadoDatos.CambiarEstadoEmpleado(id, estado);
+            TempData["Mensaje"] = estado ? "Empleado reactivado." : "Empleado desactivado.";
+            TempData["MensajeTipo"] = "ok";
             return RedirectToPage();
         }
     }
