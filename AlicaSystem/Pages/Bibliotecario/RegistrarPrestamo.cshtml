@@ -93,6 +93,7 @@
             let idLibroEncontrado = null;
             let idUsuarioEncontrado = null;
             let usuarioPuedeTomarPrestamo = false;
+            let tituloLibroEncontrado = '';
             function mostrarFechas() {
                 let dias = parseInt(document.getElementById('diasPlazo').value) || 1;
                 if (dias < 1) dias = 1;
@@ -108,14 +109,22 @@
             mostrarFechas();
             document.getElementById('diasPlazo').addEventListener('input', mostrarFechas);
 
-            async function buscarLibro() {
-                const codigo = document.getElementById('codigoLibro').value;
+                      async function buscarLibro() {
+                const codigo = document.getElementById('codigoLibro').value.trim();
+                const texto = document.getElementById('resultadoLibro');
+
+                if (!codigo) {
+                    texto.style.color = '#b3261e';
+                    texto.innerText = 'Escribe un código primero.';
+                    return;
+                }
+
                 const resp = await fetch('?handler=BuscarLibro&codigo=' + encodeURIComponent(codigo));
                 const data = await resp.json();
-                const texto = document.getElementById('resultadoLibro');
 
                 if (data.encontrado) {
                     idLibroEncontrado = data.idLibro;
+                    tituloLibroEncontrado = data.titulo;
                     if (data.cantidadDisponible > 0) {
                         texto.style.color = '';
                         texto.innerText = data.titulo + ' · ' + data.cantidadDisponible + ' ejemplar(es) disponibles en inventario';
@@ -132,11 +141,18 @@
                 revisarSiPuedeConfirmar();
             }
 
-            async function buscarLector() {
-                const matricula = document.getElementById('matriculaLector').value;
+                       async function buscarLector() {
+                const matricula = document.getElementById('matriculaLector').value.trim();
+                const texto = document.getElementById('resultadoLector');
+
+                if (!matricula) {
+                    texto.style.color = '#b3261e';
+                    texto.innerText = 'Escribe una matrícula primero.';
+                    return;
+                }
+
                 const resp = await fetch('?handler=BuscarLector&matricula=' + encodeURIComponent(matricula));
                 const data = await resp.json();
-                const texto = document.getElementById('resultadoLector');
 
                 if (data.encontrado) {
                     idUsuarioEncontrado = data.idUsuario;
@@ -170,20 +186,21 @@
             async function confirmarPrestamo() {
                 const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
 
-                const body = new URLSearchParams();
-                body.append('idUsuario', idUsuarioEncontrado);
-                body.append('idLibro', idLibroEncontrado);
+                    const body = new URLSearchParams();
+                    body.append('idUsuario', idUsuarioEncontrado);
+                               body.append('idLibro', idLibroEncontrado);
+                body.append('tituloLibro', tituloLibroEncontrado);
                 body.append('diasPlazo', document.getElementById('diasPlazo').value);
-                body.append('__RequestVerificationToken', token);
+                    body.append('__RequestVerificationToken', token);
 
                 const resp = await fetch('?handler=Registrar', { method: 'POST', body: body });
                 const data = await resp.json();
 
                 const resultado = document.getElementById('resultadoFinal');
                 resultado.style.color = data.exito ? '' : '#b3261e';
-                resultado.innerText = data.exito
-                    ? 'Préstamo registrado con éxito (ID ' + data.idPrestamo + ').'
-                    : data.mensaje;
+                        resultado.innerText = data.exito
+            ? 'Préstamo registrado: ' + data.tituloLibro + ' · Vence ' + data.fechaVence
+            : data.mensaje;
             }
                         @if (!string.IsNullOrEmpty(Model.CodigoPrecargado))
             {

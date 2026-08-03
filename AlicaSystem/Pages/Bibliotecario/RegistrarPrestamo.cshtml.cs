@@ -58,7 +58,7 @@ namespace AlicaSystem.Pages.Bibliotecario
         }
 
         // Se llama cuando el bibliotecario aprieta "Registrar prestamo".
-        public IActionResult OnPostRegistrar(int idUsuario, int idLibro, int diasPlazo)
+        public IActionResult OnPostRegistrar(int idUsuario, int idLibro, int diasPlazo, string tituloLibro)
         {
             if (diasPlazo < 1 || diasPlazo > 7)
             {
@@ -66,7 +66,8 @@ namespace AlicaSystem.Pages.Bibliotecario
             }
 
             var (idPrestamo, mensaje) = prestamoDatos.RegistrarPrestamo(idUsuario, idLibro, IdEmpleadoSesion, diasPlazo);
-            return new JsonResult(new { exito = idPrestamo > 0, idPrestamo, mensaje });
+            var fechaVence = DateTime.Now.AddDays(diasPlazo).ToString("dd/MM/yyyy");
+            return new JsonResult(new { exito = idPrestamo > 0, idPrestamo, mensaje, tituloLibro, fechaVence });
         }
     }
 }
