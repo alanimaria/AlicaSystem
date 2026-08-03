@@ -12,7 +12,7 @@ namespace AlicaSystem.Pages.Administrador
     // sp_ContarPrestamosActivos ya existia (mismo que usa el dashboard del
     // bibliotecario). Los otros 3 conteos + el top de libros se agregaron
     // en el cambio #10-#13 (2026-07-26_admin-dashboard-kpis.sql).
-    public class DashboardModel : PageModel
+    public class DashboardModel : PaginaAdministradorBase
     {
         private readonly ConexionBD conexionBD;
 

@@ -56,10 +56,19 @@
                     {
                         var l = Model.Libros[i];
                         <div class="book-card">
-                            <div class="book-cover @covers[i % covers.Length]">
-                                <span class="cat-tag">@l.Categoria</span>
-                                @l.Titulo
-                            </div>
+                            @if (!string.IsNullOrEmpty(l.PortadaUrl))
+                            {
+                                <div class="book-cover" style="background-image:url('@l.PortadaUrl'); background-size:cover; background-position:center;">
+                                    <span class="cat-tag">@l.Categoria</span>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="book-cover @covers[i % covers.Length]">
+                                    <span class="cat-tag">@l.Categoria</span>
+                                    @l.Titulo
+                                </div>
+                            }
                             <div class="book-body">
                                 <div class="book-title">@l.Titulo</div>
                                 <div class="book-author">@(l.Autores ?? "Autor no registrado")</div>

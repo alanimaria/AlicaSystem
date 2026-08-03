@@ -68,7 +68,7 @@ namespace AlicaSystem.Datos
         // el SP crea un prestamo real y necesita saber quien lo registro.
         // Devuelve true si se logro actualizar, false si no
         // (por ejemplo, si la reserva ya no estaba pendiente)
-        public bool ActualizarEstadoReserva(int idReserva, string nuevoEstado, int? idEmpleado)
+        public (bool Exito, string Mensaje) ActualizarEstadoReserva(int idReserva, string nuevoEstado, int? idEmpleado)
         {
             using SqlConnection cn = conexionBD.ObtenerConexion();
             cn.Open();
@@ -79,8 +79,14 @@ namespace AlicaSystem.Datos
             cmd.Parameters.AddWithValue("@NuevoEstado", nuevoEstado);
             cmd.Parameters.AddWithValue("@IdEmpleado", (object?)idEmpleado ?? DBNull.Value);
 
-            int filasAfectadas = Convert.ToInt32(cmd.ExecuteScalar());
-            return filasAfectadas > 0;
+            using SqlDataReader dr = cmd.ExecuteReader();
+            if (dr.Read())
+            {
+                bool exito = Convert.ToInt32(dr["FilasAfectadas"]) > 0;
+                string mensaje = dr["Mensaje"].ToString()!;
+                return (exito, mensaje);
+            }
+            return (false, "No se pudo actualizar la reserva.");
         }
 
         // ---- Metodos para el Lector (pantalla "Mis reservas") ----

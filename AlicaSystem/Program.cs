@@ -9,15 +9,20 @@ builder.Services.AddScoped<AlicaSystem.Datos.ConexionBD>();
 builder.Services.AddScoped<AlicaSystem.Datos.UsuarioDatos>();
 builder.Services.AddScoped<AlicaSystem.Datos.CategoriaDatos>();
 builder.Services.AddScoped<AlicaSystem.Datos.ListaDatos>();
-builder.Services.AddScoped<LibroDatos>();
+builder.Services.AddScoped<AlicaSystem.Datos.AutorDatos>();
+builder.Services.AddScoped<AlicaSystem.Datos.EmpleadoDatos>();
+builder.Services.AddScoped<AlicaSystem.Datos.ReporteDatos>();
+builder.Services.AddScoped<AlicaSystem.Datos.RolDatos>();
+
+
 
 // Validación de login para empleados (Bibliotecario/Administrador) Es el equivalente de UsuarioDatos pero para
 // el personal del sistema, no para los lectores.
-builder.Services.AddScoped<AlicaSystem.Datos.EmpleadoDatos>();
 builder.Services.AddScoped<PrestamoDatos>();
 builder.Services.AddScoped<ReservaDatos>();
 builder.Services.AddScoped<MultaDatos>();
-builder.Services.AddScoped<AlicaSystem.Datos.AutorDatos>();
+builder.Services.AddScoped<LibroDatos>();
+
 
 // Esto prende el sistema de Session, y le decimos cómo comportarse:
 // que la sesión expire tras 30 minutos sin actividad
@@ -48,6 +53,6 @@ app.UseAuthorization();
 
 app.MapStaticAssets();
 app.MapRazorPages()
-   .WithStaticAssets();
+    .WithStaticAssets();
 
 app.Run();

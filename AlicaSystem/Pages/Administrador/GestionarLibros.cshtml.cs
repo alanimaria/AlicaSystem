@@ -1,11 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using AlicaSystem.Datos;
 using AlicaSystem.Models;
 
 namespace AlicaSystem.Pages.Administrador
 {
-    public class GestionarLibrosModel : PageModel
+    public class GestionarLibrosModel : PaginaAdministradorBase
     {
         private readonly LibroDatos libroDatos;
         private readonly CategoriaDatos categoriaDatos;
@@ -36,6 +35,9 @@ namespace AlicaSystem.Pages.Administrador
         public int CantidadTotal { get; set; }
         [BindProperty]
         public string? Ubicacion { get; set; }
+        [BindProperty]
+        public string? PortadaUrl { get; set; }
+        public List<Libro> LibrosDesactivados { get; set; } = new();
 
         public void OnGet(int? id, string? buscar)
         {
@@ -52,6 +54,8 @@ namespace AlicaSystem.Pages.Administrador
                 ).ToList();
             }
 
+            LibrosDesactivados = Libros.Where(l => l.EstadoLibro == "Dado de baja").ToList();
+            Libros = Libros.Where(l => l.EstadoLibro != "Dado de baja").ToList();
             Categorias = categoriaDatos.ListarCategorias();
 
             if (id != null)
@@ -66,6 +70,7 @@ namespace AlicaSystem.Pages.Administrador
                     IdCategoria = l.IdCategoria;
                     CantidadTotal = l.CantidadTotal;
                     Ubicacion = l.Ubicacion;
+                    PortadaUrl = l.PortadaUrl;
                 }
             }
         }
@@ -78,17 +83,34 @@ namespace AlicaSystem.Pages.Administrador
 
         public IActionResult OnPost()
         {
-            int idEstadoLibro = 1;
+            if (string.IsNullOrWhiteSpace(Titulo) || string.IsNullOrWhiteSpace(CodigoInterno))
+            {
+                TempData["Mensaje"] = "Título y código interno son obligatorios.";
+                return RedirectToPage();
+            }
 
+            if (IdCategoria == 0)
+            {
+                TempData["Mensaje"] = "Debes seleccionar una categoría.";
+                return RedirectToPage();
+            }
+
+            if (CantidadTotal < 1)
+            {
+                TempData["Mensaje"] = "La cantidad total debe ser al menos 1.";
+                return RedirectToPage();
+            }
+
+            int idEstadoLibro = 1;
             if (IdLibro == 0)
             {
-                int idLibroNuevo = libroDatos.InsertarLibro(Titulo, Isbn, CodigoInterno, IdCategoria, idEstadoLibro, CantidadTotal, Ubicacion);
+                int idLibroNuevo = libroDatos.InsertarLibro(Titulo, Isbn, CodigoInterno, IdCategoria, idEstadoLibro, CantidadTotal, Ubicacion, PortadaUrl);
                 IdLibro = idLibroNuevo;
             }
             else
             {
                 var libroActual = libroDatos.ListarLibrosAdmin().First(l => l.IdLibro == IdLibro);
-                libroDatos.ActualizarLibro(IdLibro, Titulo, Isbn, CodigoInterno, IdCategoria, libroActual.IdEstadoLibro, CantidadTotal, Ubicacion);
+                libroDatos.ActualizarLibro(IdLibro, Titulo, Isbn, CodigoInterno, IdCategoria, libroActual.IdEstadoLibro, CantidadTotal, Ubicacion, PortadaUrl);
             }
 
             var idsAutores = Request.Form["idsAutores"].ToString()
@@ -104,10 +126,10 @@ namespace AlicaSystem.Pages.Administrador
             return RedirectToPage();
         }
 
-        public IActionResult OnPostEliminar(int id)
+        public IActionResult OnPostCambiarEstado(int id, bool activar)
         {
-            bool ok = libroDatos.EliminarLibro(id, out string? error);
-            TempData["Mensaje"] = ok ? "Libro desactivado." : error;
+            bool ok = libroDatos.CambiarEstadoLibro(id, activar, out string? error);
+            TempData["Mensaje"] = ok ? (activar ? "Libro activado." : "Libro desactivado.") : error;
             return RedirectToPage();
         }
     }

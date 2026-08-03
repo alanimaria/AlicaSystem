@@ -1,6 +1,7 @@
-﻿using System.Data;
+﻿using AlicaSystem.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
-using AlicaSystem.Models;
+using System.Data;
 
 namespace AlicaSystem.Datos
 {
@@ -29,6 +30,7 @@ namespace AlicaSystem.Datos
             {
                 lista.Add(new Libro
                 {
+                    PortadaUrl = dr["portada_url"] == DBNull.Value ? null : dr["portada_url"].ToString(),
                     IdLibro = Convert.ToInt32(dr["id_libro"]),
                     Titulo = dr["titulo"].ToString()!,
                     Isbn = dr["isbn"] == DBNull.Value ? null : dr["isbn"].ToString(),
@@ -37,6 +39,7 @@ namespace AlicaSystem.Datos
                     EstadoLibro = dr["estado_libro"].ToString()!,
                     CantidadDisponible = dr["cantidad_disponible"] == DBNull.Value ? 0 : Convert.ToInt32(dr["cantidad_disponible"]),
                     CantidadTotal = dr["cantidad_total"] == DBNull.Value ? 0 : Convert.ToInt32(dr["cantidad_total"]),
+                    Ubicacion = dr["ubicacion"] == DBNull.Value ? null : dr["ubicacion"].ToString(),
                     Autores = dr["lista_autores"] == DBNull.Value ? null : dr["lista_autores"].ToString(),
                     EstadoDisponibilidad = dr["estado_disponibilidad"].ToString()!
                 });
@@ -58,6 +61,7 @@ namespace AlicaSystem.Datos
             {
                 lista.Add(new Libro
                 {
+                    PortadaUrl = dr["portada_url"] == DBNull.Value ? null : dr["portada_url"].ToString(),
                     IdLibro = Convert.ToInt32(dr["id_libro"]),
                     Titulo = dr["titulo"].ToString()!,
                     Isbn = dr["isbn"] == DBNull.Value ? null : dr["isbn"].ToString(),
@@ -75,7 +79,7 @@ namespace AlicaSystem.Datos
             return lista;
         }
 
-        public int InsertarLibro(string titulo, string? isbn, string codigoInterno, int idCategoria, int idEstadoLibro, int cantidadTotal, string? ubicacion)
+        public int InsertarLibro(string titulo, string? isbn, string codigoInterno, int idCategoria, int idEstadoLibro, int cantidadTotal, string? ubicacion, string? portadaUrl)
         {
             using SqlConnection cn = conexionBD.ObtenerConexion();
             cn.Open();
@@ -88,7 +92,7 @@ namespace AlicaSystem.Datos
             cmd.Parameters.AddWithValue("@IdEstadoLibro", idEstadoLibro);
             cmd.Parameters.AddWithValue("@CantidadTotal", cantidadTotal);
             cmd.Parameters.AddWithValue("@Ubicacion", (object?)ubicacion ?? DBNull.Value);
-
+            cmd.Parameters.AddWithValue("@PortadaUrl", (object?)portadaUrl ?? DBNull.Value);
             return Convert.ToInt32(cmd.ExecuteScalar());
         }
 
@@ -114,7 +118,7 @@ namespace AlicaSystem.Datos
             cmd.ExecuteNonQuery();
         }
 
-        public void ActualizarLibro(int idLibro, string titulo, string? isbn, string codigoInterno, int idCategoria, int idEstadoLibro, int cantidadTotal, string? ubicacion)
+        public void ActualizarLibro(int idLibro, string titulo, string? isbn, string codigoInterno, int idCategoria, int idEstadoLibro, int cantidadTotal, string? ubicacion, string? portadaUrl)
         {
             using SqlConnection cn = conexionBD.ObtenerConexion();
             cn.Open();
@@ -128,19 +132,21 @@ namespace AlicaSystem.Datos
             cmd.Parameters.AddWithValue("@IdEstadoLibro", idEstadoLibro);
             cmd.Parameters.AddWithValue("@CantidadTotal", cantidadTotal);
             cmd.Parameters.AddWithValue("@Ubicacion", (object?)ubicacion ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@PortadaUrl", (object?)portadaUrl ?? DBNull.Value);
             cmd.ExecuteNonQuery();
         }
 
-        public bool EliminarLibro(int idLibro, out string? error)
+        public bool CambiarEstadoLibro(int idLibro, bool activar, out string? error)
         {
             error = null;
             try
             {
                 using SqlConnection cn = conexionBD.ObtenerConexion();
                 cn.Open();
-                using SqlCommand cmd = new SqlCommand("sp_EliminarLibro", cn);
+                using SqlCommand cmd = new SqlCommand("sp_CambiarEstadoLibro", cn);
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@IdLibro", idLibro);
+                cmd.Parameters.AddWithValue("@Activar", activar);
                 cmd.ExecuteNonQuery();
                 return true;
             }
@@ -163,6 +169,7 @@ namespace AlicaSystem.Datos
             {
                 return new Libro
                 {
+                    PortadaUrl = dr["portada_url"] == DBNull.Value ? null : dr["portada_url"].ToString(),
                     IdLibro = Convert.ToInt32(dr["id_libro"]),
                     Titulo = dr["titulo"].ToString()!,
                     Isbn = dr["isbn"] == DBNull.Value ? null : dr["isbn"].ToString(),
@@ -179,6 +186,7 @@ namespace AlicaSystem.Datos
             }
             return null;
         }
+      
 
         // Cuenta el total de libros registrados en el catalogo.
         // Se usa para el KPI "Libros en catalogo" del Dashboard Administrador.

@@ -66,6 +66,12 @@ namespace AlicaSystem.Pages.Administrador
 
         public IActionResult OnPost()
         {
+            if (string.IsNullOrWhiteSpace(Nombre) || string.IsNullOrWhiteSpace(Apellido) || string.IsNullOrWhiteSpace(Email) || IdRol == 0 || string.IsNullOrWhiteSpace(Area))
+            {
+                TempData["Mensaje"] = "Nombre, apellido, correo, rol y área son obligatorios.";
+                return RedirectToPage();
+            }
+
             bool exito;
             string? error;
 

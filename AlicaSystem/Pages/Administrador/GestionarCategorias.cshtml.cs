@@ -1,11 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using AlicaSystem.Datos;
 using AlicaSystem.Models;
 
 namespace AlicaSystem.Pages.Administrador
 {
-    public class GestionarCategoriasModel : PageModel
+    public class GestionarCategoriasModel : PaginaAdministradorBase
     {
         private readonly CategoriaDatos categoriaDatos;
 
@@ -44,6 +43,12 @@ namespace AlicaSystem.Pages.Administrador
 
         public IActionResult OnPost()
         {
+            if (string.IsNullOrWhiteSpace(Nombre))
+            {
+                TempData["Mensaje"] = "El nombre de la categoría es obligatorio.";
+                return RedirectToPage();
+            }
+
             if (IdCategoria == 0)
                 categoriaDatos.InsertarCategoria(Nombre, Descripcion);
             else
@@ -55,8 +60,8 @@ namespace AlicaSystem.Pages.Administrador
 
         public IActionResult OnPostEliminar(int id)
         {
-            categoriaDatos.EliminarCategoria(id);
-            TempData["Mensaje"] = "Categoría eliminada.";
+            bool ok = categoriaDatos.EliminarCategoria(id, out string? error);
+            TempData["Mensaje"] = ok ? "Categoría desactivada." : error;
             return RedirectToPage();
         }
     }

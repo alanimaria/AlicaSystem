@@ -42,7 +42,7 @@
                     <div class="field-group">
                         <label class="field-label">Libro (código interno) <span class="req">*</span></label>
                         <div style="display:flex; gap:8px;">
-                            <input class="field" id="codigoLibro" placeholder="Ej: COD-0231">
+                            <input class="field" id="codigoLibro" placeholder="Ej: COD-0231" value="@Model.CodigoPrecargado">
                             <button type="button" class="btn btn-ghost" onclick="buscarLibro()"><i class="bi bi-search"></i></button>
                         </div>
                         <div class="field-help" id="resultadoLibro">Todavía no se ha buscado ningún libro</div>
@@ -50,8 +50,8 @@
 
                     <div class="form-grid-2">
                         <div class="field-group">
-                            <label class="field-label">Fecha de préstamo</label>
-                            <input class="field" id="fechaPrestamo" disabled>
+                            <label class="field-label">Días de plazo <span class="req">*</span></label>
+                            <input class="field" type="number" id="diasPlazo" min="1" max="7" value="7">
                         </div>
                         <div class="field-group">
                             <label class="field-label">Devolución esperada</label>
@@ -62,8 +62,8 @@
                     <div class="field-group">
                         <label class="field-label">Bibliotecario responsable</label>
                         <div class="userline" style="padding:8px 0;">
-                            <div class="avatar">@(Model.NombreUsuario.Length > 0 ? Model.NombreUsuario.Substring(0, 1) : "")</div>
-                            <div><div class="who">@Model.NombreUsuario</div><div class="sub">Sesión activa</div></div>
+                            <div class="avatar">@(Model.NombreUsuarioSesion.Length > 0 ? Model.NombreUsuarioSesion.Substring(0, 1) : "")</div>
+                            <div><div class="who">@Model.NombreUsuarioSesion</div><div class="sub">Sesión activa</div></div>
                         </div>
                     </div>
 
@@ -90,26 +90,23 @@
     </div>
 
     <script>
-            const DIAS_PLAZO = 7;
-
             let idLibroEncontrado = null;
             let idUsuarioEncontrado = null;
             let usuarioPuedeTomarPrestamo = false;
-
-            // Muestra fecha de hoy y fecha de devolucion esperada (hoy + DIAS_PLAZO)
-            // apenas carga la pagina. Son solo informativas: el plazo real
-            // lo calcula el stored procedure al registrar.
             function mostrarFechas() {
-                const hoy = new Date();
+                let dias = parseInt(document.getElementById('diasPlazo').value) || 1;
+                if (dias < 1) dias = 1;
+                if (dias > 7) dias = 7;
+                document.getElementById('diasPlazo').value = dias;
+
                 const devolucion = new Date();
-                devolucion.setDate(hoy.getDate() + DIAS_PLAZO);
+                devolucion.setDate(devolucion.getDate() + dias);
 
                 const formatear = (f) => f.toLocaleDateString('es-DO', { day: '2-digit', month: '2-digit', year: 'numeric' });
-
-                document.getElementById('fechaPrestamo').value = formatear(hoy);
                 document.getElementById('fechaDevolucion').value = formatear(devolucion);
             }
             mostrarFechas();
+            document.getElementById('diasPlazo').addEventListener('input', mostrarFechas);
 
             async function buscarLibro() {
                 const codigo = document.getElementById('codigoLibro').value;
@@ -176,6 +173,7 @@
                 const body = new URLSearchParams();
                 body.append('idUsuario', idUsuarioEncontrado);
                 body.append('idLibro', idLibroEncontrado);
+                body.append('diasPlazo', document.getElementById('diasPlazo').value);
                 body.append('__RequestVerificationToken', token);
 
                 const resp = await fetch('?handler=Registrar', { method: 'POST', body: body });
@@ -186,6 +184,10 @@
                 resultado.innerText = data.exito
                     ? 'Préstamo registrado con éxito (ID ' + data.idPrestamo + ').'
                     : data.mensaje;
+            }
+                        @if (!string.IsNullOrEmpty(Model.CodigoPrecargado))
+            {
+                    <text>buscarLibro();</text>
             }
     </script>
 </body>
