@@ -55,7 +55,36 @@ namespace AlicaSystem.Datos
             cmd.Parameters.AddWithValue("@Descripcion", (object?)descripcion ?? DBNull.Value);
             cmd.ExecuteNonQuery();
         }
+        public List<Categoria> ListarCategoriasAdmin()
+        {
+            var lista = new List<Categoria>();
+            using SqlConnection cn = conexionBD.ObtenerConexion();
+            cn.Open();
+            using SqlCommand cmd = new SqlCommand("sp_ListarCategoriasAdmin", cn);
+            cmd.CommandType = CommandType.StoredProcedure;
 
+            using SqlDataReader dr = cmd.ExecuteReader();
+            while (dr.Read())
+            {
+                lista.Add(new Categoria
+                {
+                    IdCategoria = Convert.ToInt32(dr["id_categoria"]),
+                    Nombre = dr["nombre"].ToString()!,
+                    Descripcion = dr["descripcion"] == DBNull.Value ? null : dr["descripcion"].ToString(),
+                    Estado = Convert.ToBoolean(dr["estado"])
+                });
+            }
+            return lista;
+        }
+        public void ActivarCategoria(int idCategoria)
+        {
+            using SqlConnection cn = conexionBD.ObtenerConexion();
+            cn.Open();
+            using SqlCommand cmd = new SqlCommand("sp_ActivarCategoria", cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@IdCategoria", idCategoria);
+            cmd.ExecuteNonQuery();
+        }
         public bool EliminarCategoria(int idCategoria, out string? error)
         {
             error = null;
@@ -76,4 +105,5 @@ namespace AlicaSystem.Datos
             }
         }
     }
+
 }

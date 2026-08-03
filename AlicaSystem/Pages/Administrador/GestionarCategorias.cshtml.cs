@@ -14,6 +14,7 @@ namespace AlicaSystem.Pages.Administrador
         }
 
         public List<Categoria> Categorias { get; set; } = new();
+        public List<Categoria> CategoriasDesactivadas { get; set; } = new();
 
         [BindProperty]
         public int IdCategoria { get; set; }
@@ -27,11 +28,13 @@ namespace AlicaSystem.Pages.Administrador
         public void OnGet(int? id)
         {
             ViewData["Activo"] = "GestionarCategorias";
-            Categorias = categoriaDatos.ListarCategorias();
+            var todas = categoriaDatos.ListarCategoriasAdmin();
+            Categorias = todas.Where(c => c.Estado).ToList();
+            CategoriasDesactivadas = todas.Where(c => !c.Estado).ToList();
 
             if (id != null)
             {
-                var c = Categorias.FirstOrDefault(x => x.IdCategoria == id);
+                var c = todas.FirstOrDefault(x => x.IdCategoria == id);
                 if (c != null)
                 {
                     IdCategoria = c.IdCategoria;
@@ -62,6 +65,13 @@ namespace AlicaSystem.Pages.Administrador
         {
             bool ok = categoriaDatos.EliminarCategoria(id, out string? error);
             TempData["Mensaje"] = ok ? "Categoría desactivada." : error;
+            return RedirectToPage();
+        }
+
+        public IActionResult OnPostActivar(int id)
+        {
+            categoriaDatos.ActivarCategoria(id);
+            TempData["Mensaje"] = "Categoría activada.";
             return RedirectToPage();
         }
     }

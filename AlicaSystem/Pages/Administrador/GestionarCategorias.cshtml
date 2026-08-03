@@ -61,7 +61,34 @@
                     </form>
                 </div>
             </div>
-
+            @if (Model.CategoriasDesactivadas.Count > 0)
+            {
+                <div class="card pad-m" style="margin-top:12px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; cursor:pointer;" onclick="document.getElementById('tablaCategoriasDesactivadas').classList.toggle('show-block')">
+                        <span style="font-size:13px; color:var(--ink-soft);">Categorías desactivadas (@Model.CategoriasDesactivadas.Count)</span>
+                        <i class="bi bi-chevron-down"></i>
+                    </div>
+                    <div id="tablaCategoriasDesactivadas" style="display:none; margin-top:12px;">
+                        <table>
+                            <thead><tr><th>Categoría</th><th class="hide-mobile">Descripción</th><th>Acciones</th></tr></thead>
+                            <tbody>
+                                @foreach (var c in Model.CategoriasDesactivadas)
+                                {
+                                    <tr>
+                                        <td>@c.Nombre</td>
+                                        <td class="hide-mobile">@c.Descripcion</td>
+                                        <td>
+                                            <form method="post" asp-page-handler="Activar" asp-route-id="@c.IdCategoria" style="display:inline;">
+                                                <button type="submit" class="btn btn-ghost btn-sm">Activar</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
         </main>
     </div>
     <script src="~/js/site.js"></script>
