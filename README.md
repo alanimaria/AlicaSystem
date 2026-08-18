@@ -1,4 +1,4 @@
-# Alica System — Sistema de Gestión Bibliotecaria
+# Alica System | Sistema de Gestión Bibliotecaria
 
 Sistema web de gestión bibliotecaria desarrollado como proyecto final para la materia de **Desarrollo Web II**, carrera de Ingeniería de Software — **Instituto Cultural Dominico Americano (UNICDA)**.
 
